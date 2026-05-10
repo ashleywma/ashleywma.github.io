@@ -155,6 +155,7 @@
     rows.push(
       topFolder("employment", [
         linkRow("/employment/cse220-ta.html", "cse220-ta.html", leaf === "cse220-ta.html"),
+        nestedFolder("bwl", []),
       ])
     );
     rows.push(topFolder("classes", []));
@@ -359,12 +360,13 @@
       bot_race: "/projects/rob101-bot-race.html",
       interface: "/projects/research-ui-lab.html",
       interface_study: "/projects/research-ui-lab.html",
-      bwl: "/projects/bwl-dashboard.html",
-      dashboard: "/projects/bwl-dashboard.html",
+      bwl: "/employment/bwl/overview.html",
       "projects/graph": "/projects/eecs281-graph-demo.html",
       "projects/bot_race": "/projects/rob101-bot-race.html",
       "projects/interface": "/projects/research-ui-lab.html",
-      "projects/bwl": "/projects/bwl-dashboard.html",
+      "projects/bwl": "/employment/bwl/overview.html",
+      "employment/bwl": "/employment/bwl/overview.html",
+      "employment/bwl/overview": "/employment/bwl/overview.html",
       "education/overview": "/classes.html",
       "classes/overview": "/classes.html",
       "research/sam-lab": "/research/sam-lab.html",
@@ -387,6 +389,7 @@
       "/research/iral-lab.html": "/research/iral-lab.html",
       "/employment.html": "/employment.html",
       "/employment/cse220-ta.html": "/employment/cse220-ta.html",
+      "/employment/bwl/overview.html": "/employment/bwl/overview.html",
       "/personal.html": "/personal.html",
       "/personal/artwork.html": "/personal/artwork.html",
       "/personal/dance.html": "/personal/dance.html",
@@ -402,7 +405,7 @@
       "/projects/eecs281-graph-demo.html": "/projects/eecs281-graph-demo.html",
       "/projects/rob101-bot-race.html": "/projects/rob101-bot-race.html",
       "/projects/research-ui-lab.html": "/projects/research-ui-lab.html",
-      "/projects/bwl-dashboard.html": "/projects/bwl-dashboard.html",
+      "/projects/bwl-dashboard.html": "/employment/bwl/overview.html",
     };
 
     function resolveNavigateTarget(raw) {
@@ -447,7 +450,9 @@
       employment: [
         { type: "file", name: "overview.html" },
         { type: "file", name: "cse220-ta.html" },
+        { type: "dir", name: "bwl" },
       ],
+      "employment/bwl": [],
       personal: [
         { type: "file", name: "artwork.html" },
         { type: "file", name: "dance.html" },
@@ -464,8 +469,15 @@
 
     function isValidCwdSegments(segments) {
       if (!segments || !segments.length) return true;
-      if (segments.length !== 1) return false;
-      return !!CD_VALID_TOP[segments[0].toLowerCase()];
+      if (segments.length === 1) return !!CD_VALID_TOP[segments[0].toLowerCase()];
+      if (
+        segments.length === 2 &&
+        segments[0].toLowerCase() === "employment" &&
+        segments[1].toLowerCase() === "bwl"
+      ) {
+        return true;
+      }
+      return false;
     }
 
     function foldPathDots(baseSegments, pathSegments) {
