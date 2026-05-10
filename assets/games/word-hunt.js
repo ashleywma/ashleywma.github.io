@@ -27,9 +27,7 @@
   const elFound = $("wh-found");
   const elSeedLine = $("wh-seed-line");
   const elSeedInput = $("wh-seed-input");
-  const elSeedApply = $("wh-seed-apply");
   const elCopySeed = $("wh-copy-seed");
-  const elCopyLink = $("wh-copy-link");
 
   if (!elBoard || !elBoardWrap || !elTrace) return;
 
@@ -38,6 +36,10 @@
 
   /** @type {string | null} */
   let urlBaseSeed = null;
+  /** Encoded stats from `?rival=` (friend’s run), XOR-obfuscated with this page’s seed. */
+  let rivalEncodedFromUrl = null;
+
+  const STAT_SALT = "wordhunt-rival-v1";
 
   /** Older links used `auto-` + hex; strip so the board matches plain hex seeds. */
   function stripLegacyAutoPrefix(s) {
@@ -46,8 +48,69 @@
     return t.slice(0, SEED_MAX_LEN);
   }
 
+  function fnv1aMix(str) {
+    let h = 2166136261 >>> 0;
+    for (let i = 0; i < str.length; i++) {
+      h ^= str.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    return h >>> 0;
+  }
+
+  function expandStatKey(seed, len) {
+    const key = new Uint8Array(len);
+    let x = fnv1aMix(seed + "|" + STAT_SALT);
+    for (let i = 0; i < len; i++) {
+      x = (Math.imul(x, 1664525) + 1013904223) >>> 0;
+      key[i] = x & 0xff;
+    }
+    return key;
+  }
+
+  function bytesToBase64Url(bytes) {
+    let bin = "";
+    for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+    return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  }
+
+  function base64UrlToBytes(b64url) {
+    const pad = b64url.length % 4 === 0 ? "" : "=".repeat(4 - (b64url.length % 4));
+    const bin = atob(b64url.replace(/-/g, "+").replace(/_/g, "/") + pad);
+    const out = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+    return out;
+  }
+
+  /** @param {string} seed */
+  function encodeStatsPayload(seed, score, nWords) {
+    const enc = new TextEncoder();
+    const bytes = enc.encode(JSON.stringify({ s: score, n: nWords }));
+    const key = expandStatKey(seed, bytes.length);
+    const out = new Uint8Array(bytes.length);
+    for (let i = 0; i < bytes.length; i++) out[i] = bytes[i] ^ key[i];
+    return bytesToBase64Url(out);
+  }
+
+  /** @param {string} seed @param {string} b64url */
+  function decodeStatsPayload(seed, b64url) {
+    try {
+      const raw = base64UrlToBytes(b64url);
+      const key = expandStatKey(seed, raw.length);
+      const dec = new Uint8Array(raw.length);
+      for (let i = 0; i < raw.length; i++) dec[i] = raw[i] ^ key[i];
+      const o = JSON.parse(new TextDecoder().decode(dec));
+      if (typeof o.s !== "number" || typeof o.n !== "number") return null;
+      return { score: o.s, words: o.n };
+    } catch (_) {
+      return null;
+    }
+  }
+
   function initSeedFromUrl() {
     const params = new URLSearchParams(location.search);
+    const riv = params.get("rival");
+    rivalEncodedFromUrl = riv != null && riv !== "" ? riv : null;
+
     const raw = params.get("seed");
     if (raw != null && raw !== "") {
       const t = stripLegacyAutoPrefix(raw.trim());
@@ -111,21 +174,19 @@
     }
   }
 
-  function syncSeededUrl() {
+  function syncSeededUrl(options = {}) {
+    const clearRival = options.clearRival === true;
     if (urlBaseSeed == null) return;
     const u = new URL(location.href);
     u.searchParams.set("seed", urlBaseSeed);
     u.searchParams.delete("board");
-    history.replaceState(null, "", u.pathname + u.search + u.hash);
-  }
-
-  function playUrlString() {
-    const u = new URL(location.href);
-    if (urlBaseSeed != null) {
-      u.searchParams.set("seed", urlBaseSeed);
-      u.searchParams.delete("board");
+    if (clearRival) {
+      u.searchParams.delete("rival");
+      rivalEncodedFromUrl = null;
+    } else if (rivalEncodedFromUrl) {
+      u.searchParams.set("rival", rivalEncodedFromUrl);
     }
-    return u.toString();
+    history.replaceState(null, "", u.pathname + u.search + u.hash);
   }
 
   function stringToSeed(str) {
@@ -157,7 +218,10 @@
 
   function setSeedEditingEnabled(enabled) {
     if (elSeedInput) elSeedInput.disabled = !enabled;
-    if (elSeedApply) elSeedApply.disabled = !enabled;
+  }
+
+  function setNewBoardEnabled(enabled) {
+    if (elNew) elNew.disabled = !enabled;
   }
 
   function updateSeedLine() {
@@ -171,22 +235,19 @@
     elSeedInput.value = urlBaseSeed;
   }
 
-  function applySeedFromInput() {
-    if (running) {
-      setMsg("Finish the round before changing seed.");
-      return;
-    }
+  /** Read seed field (or random if empty), sync URL, rebuild board. Call when starting a round or from new-board flows that need input sync. */
+  function commitSeedFromInput() {
     let raw = elSeedInput ? stripLegacyAutoPrefix(elSeedInput.value) : "";
     if (raw === "") {
       raw = generateAutoSeedString();
     }
     urlBaseSeed = raw;
-    syncSeededUrl();
+    syncSeededUrl({ clearRival: true });
     board = generateBoard();
     renderBoard();
     clearSelection();
     updateSeedLine();
-    setMsg("Seed updated. Hit start when ready.");
+    mustRollBeforeNextStart = false;
   }
 
   /** @type {Set<string> | null} */
@@ -211,6 +272,8 @@
   let running = false;
   let remaining = ROUND_SECONDS;
   let timer = null;
+  /** After a finished round, next start rolls a new seed/board so the same grid is never replayed. */
+  let mustRollBeforeNextStart = false;
 
   /** @type {Map<string, number>} word (lowercase) → points for that word */
   let foundScores = new Map();
@@ -288,13 +351,27 @@
     ["Q", 0.1],
     ["Z", 0.07],
   ];
-  const LETTER_TOTAL = LETTER_BAG.reduce((acc, [, w]) => acc + w, 0);
 
-  /** @param {() => number} rng returns uniform [0, 1) */
-  function randomLetter(rng) {
-    let roll = rng() * LETTER_TOTAL;
+  /**
+   * Weighted pick like English frequency, but down-weights letters that already
+   * appear often on this board so repeats are rarer than i.i.d. draws.
+   * @param {() => number} rng
+   * @param {Map<string, number>} counts letter → times already on board
+   */
+  function randomLetter(rng, counts) {
+    let total = 0;
+    /** @type {Array<[string, number]>} */
+    const adjusted = [];
     for (const [ch, w] of LETTER_BAG) {
-      roll -= w;
+      const c = counts.get(ch) ?? 0;
+      const mult = 1 / (1 + 1.35 * c);
+      const aw = w * mult;
+      total += aw;
+      adjusted.push([ch, aw]);
+    }
+    let roll = rng() * total;
+    for (const [ch, aw] of adjusted) {
+      roll -= aw;
       if (roll <= 0) return ch;
     }
     return "E";
@@ -303,7 +380,12 @@
   function generateBoard() {
     const rng = createRng();
     const b = [];
-    for (let i = 0; i < TILE_COUNT; i++) b.push(randomLetter(rng));
+    const counts = new Map();
+    for (let i = 0; i < TILE_COUNT; i++) {
+      const ch = randomLetter(rng, counts);
+      b.push(ch);
+      counts.set(ch, (counts.get(ch) ?? 0) + 1);
+    }
     return b;
   }
 
@@ -369,13 +451,37 @@
     lastPointerClient = null;
     path = [];
     used.clear();
-    for (const tile of tiles) tile.classList.remove("is-active", "is-used");
+    for (const tile of tiles) tile.classList.remove("is-active", "is-used", "is-dict-word");
     setCurrent("");
     updateTrace();
   }
 
+  /** While dragging, mark path tiles green when the path is a dictionary word. */
+  function updatePathDictHint() {
+    const hint = "is-dict-word";
+    for (const tile of tiles) tile.classList.remove(hint);
+    if (!DICT || path.length === 0) return;
+    const w = pathToWord().toLowerCase();
+    if (w.length < MIN_LEN || !DICT.has(w)) return;
+    for (const idx of path) tiles[idx].classList.add(hint);
+  }
+
   function pathToWord() {
     return path.map((i) => board[i]).join("");
+  }
+
+  function syncTileLetters() {
+    const mask = "·";
+    for (let i = 0; i < tiles.length; i++) {
+      const ch = board[i];
+      tiles[i].dataset.letter = ch;
+      tiles[i].textContent = running ? ch : mask;
+      tiles[i].classList.toggle("wordhunt__tile--masked", !running);
+      tiles[i].setAttribute(
+        "aria-label",
+        running ? `Letter ${ch}, tile ${i + 1}` : `Hidden tile ${i + 1} of 25`
+      );
+    }
   }
 
   function renderBoard() {
@@ -389,12 +495,16 @@
       btn.setAttribute("role", "gridcell");
       btn.setAttribute("aria-label", `Letter ${board[i]}, tile ${i + 1}`);
       btn.dataset.idx = String(i);
+      btn.dataset.letter = board[i];
       btn.textContent = board[i];
       elBoard.appendChild(btn);
       tiles.push(btn);
     }
 
-    queueMicrotask(() => updateTrace());
+    queueMicrotask(() => {
+      syncTileLetters();
+      updateTrace();
+    });
   }
 
   function addIdx(idx) {
@@ -404,6 +514,7 @@
     used.add(idx);
     tiles[idx].classList.add("is-active", "is-used");
     setCurrent(pathToWord());
+    updatePathDictHint();
     updateTrace();
   }
 
@@ -454,6 +565,17 @@
     spanPts.textContent = String(pts);
     li.append(spanWord, spanPts);
     elWords.prepend(li);
+
+    elMsg.classList.remove("wordhunt__msg--flash-ok");
+    li.classList.remove("wordhunt__word--flash-ok");
+    void elMsg.offsetWidth;
+    void li.offsetWidth;
+    elMsg.classList.add("wordhunt__msg--flash-ok");
+    li.classList.add("wordhunt__word--flash-ok");
+    window.setTimeout(() => {
+      elMsg.classList.remove("wordhunt__msg--flash-ok");
+      li.classList.remove("wordhunt__word--flash-ok");
+    }, 600);
   }
 
   function summaryRow(word, pts) {
@@ -477,6 +599,16 @@
       elSummaryExpand.textContent = "Show more words";
       elSummaryExpand.onclick = null;
     }
+    const elComp = $("wh-summary-compare");
+    const elAct = $("wh-summary-actions");
+    const elCopyCmp = $("wh-copy-compare");
+    if (elComp) {
+      elComp.hidden = true;
+      elComp.textContent = "";
+    }
+    if (elAct) elAct.hidden = true;
+    if (elCopyCmp) elCopyCmp.onclick = null;
+    syncTileLetters();
   }
 
   function showRoundSummary() {
@@ -526,6 +658,48 @@
     }
   }
 
+  function finishRoundShareUI(finalScore, finalWordCount) {
+    const elComp = $("wh-summary-compare");
+    const elAct = $("wh-summary-actions");
+    const elCopyCmp = $("wh-copy-compare");
+
+    if (elComp && urlBaseSeed && rivalEncodedFromUrl) {
+      const other = decodeStatsPayload(urlBaseSeed, rivalEncodedFromUrl);
+      if (other) {
+        elComp.hidden = false;
+        let line = `Their run (from link): ${other.words} words, ${other.score} pts. Yours: ${finalWordCount} words, ${finalScore} pts.`;
+        if (finalScore > other.score) line += " You scored higher on points.";
+        else if (finalScore < other.score) line += " They scored higher on points.";
+        else line += " Same points.";
+        elComp.textContent = line;
+      } else {
+        elComp.hidden = true;
+        elComp.textContent = "";
+      }
+    } else if (elComp) {
+      elComp.hidden = true;
+      elComp.textContent = "";
+    }
+
+    if (elAct && urlBaseSeed) {
+      elAct.hidden = false;
+      if (elCopyCmp) {
+        elCopyCmp.onclick = async () => {
+          const enc = encodeStatsPayload(urlBaseSeed, finalScore, finalWordCount);
+          const u = new URL(location.href);
+          u.searchParams.set("seed", urlBaseSeed);
+          u.searchParams.set("rival", enc);
+          u.searchParams.delete("board");
+          const ok = await copyTextRobust(u.toString());
+          if (ok) setMsg("Compare link copied.");
+          else window.prompt("Copy compare link:", u.toString());
+        };
+      }
+    } else if (elAct) {
+      elAct.hidden = true;
+    }
+  }
+
   function stopRound() {
     running = false;
     if (timer) {
@@ -533,21 +707,67 @@
       timer = null;
     }
     elStart.textContent = "start";
-    setMsg("Time. Hit start to play again.");
+    mustRollBeforeNextStart = true;
+    setMsg("Time. Hit start for a new board.");
     clearSelection();
     setSeedEditingEnabled(true);
+    setNewBoardEnabled(true);
+    const finalScore = score;
+    const finalWordCount = foundScores.size;
     showRoundSummary();
+    finishRoundShareUI(finalScore, finalWordCount);
   }
 
-  function startRound() {
-    if (!DICT) return;
-    setSeedEditingEnabled(false);
-    running = true;
+  function rollNewChallenge() {
+    urlBaseSeed = generateAutoSeedString();
+    syncSeededUrl({ clearRival: true });
+    board = generateBoard();
+    renderBoard();
+    clearSelection();
+    updateSeedLine();
+  }
+
+  /** Mid-round “restart”: stop timer, hide summary, new seed/board, back to pre-start (masked). */
+  function abortToIdleFromRestart() {
+    if (!running) return;
+    if (timer) {
+      window.clearInterval(timer);
+      timer = null;
+    }
+    running = false;
+    hideRoundSummary();
     remaining = ROUND_SECONDS;
     score = 0;
     foundScores = new Map();
     elWords.innerHTML = "";
+    updateStats();
+    elStart.textContent = "start";
+    setSeedEditingEnabled(true);
+    setNewBoardEnabled(true);
+    rollNewChallenge();
+    mustRollBeforeNextStart = false;
+    syncTileLetters();
+    setMsg("Ready. Hit start — letters unlock when the round begins.");
+    clearSelection();
+  }
+
+  function startRound() {
+    if (!DICT) return;
     hideRoundSummary();
+    if (mustRollBeforeNextStart) {
+      rollNewChallenge();
+      mustRollBeforeNextStart = false;
+    } else {
+      commitSeedFromInput();
+    }
+    setSeedEditingEnabled(false);
+    remaining = ROUND_SECONDS;
+    score = 0;
+    foundScores = new Map();
+    elWords.innerHTML = "";
+    running = true;
+    setNewBoardEnabled(false);
+    syncTileLetters();
     elStart.textContent = "restart";
     setMsg("Press and drag across touching letters — release to submit.");
     clearSelection();
@@ -562,12 +782,9 @@
   }
 
   function newBoard() {
-    urlBaseSeed = generateAutoSeedString();
-    syncSeededUrl();
-    board = generateBoard();
-    renderBoard();
-    clearSelection();
-    updateSeedLine();
+    if (running) return;
+    rollNewChallenge();
+    mustRollBeforeNextStart = false;
     if (!running) setMsg("Ready. Hit start.");
   }
 
@@ -670,7 +887,7 @@
 
   function enableUI() {
     elStart.disabled = false;
-    elNew.disabled = false;
+    setNewBoardEnabled(!running);
   }
 
   function boot() {
@@ -685,6 +902,10 @@
 
     elStart.addEventListener("click", () => {
       if (!DICT) return;
+      if (running) {
+        abortToIdleFromRestart();
+        return;
+      }
       startRound();
     });
 
@@ -692,14 +913,11 @@
       newBoard();
     });
 
-    if (elSeedApply) {
-      elSeedApply.addEventListener("click", () => applySeedFromInput());
-    }
     if (elSeedInput) {
       elSeedInput.addEventListener("keydown", (e) => {
         if (e.key === "Enter") {
           e.preventDefault();
-          applySeedFromInput();
+          if (!running) startRound();
         }
       });
     }
@@ -713,15 +931,6 @@
         else window.prompt("Copy this seed (Ctrl/Cmd+C):", text);
       });
     }
-
-    if (elCopyLink) {
-      elCopyLink.addEventListener("click", async () => {
-        const url = playUrlString();
-        const ok = await copyTextRobust(url);
-        if (ok) setMsg("Link copied.");
-        else window.prompt("Copy this link (Ctrl/Cmd+C):", url);
-      });
-    }
   }
 
   boot();
@@ -730,7 +939,7 @@
     .then((set) => {
       DICT = set;
       enableUI();
-      setMsg("Ready. Hit start. Copy seed or copy link to share.");
+      setMsg("Ready. Hit start — letters unlock when the round begins.");
     })
     .catch((err) => {
       console.error(err);

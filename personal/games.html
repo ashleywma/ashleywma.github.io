@@ -51,8 +51,9 @@
 
             <h2><span class="prompt" aria-hidden="true"></span>Word Hunt (GamePigeon)</h2>
             <p>
-              share <strong>copy seed</strong> or
-              <strong>copy link</strong> so a friend gets the same board. 
+              Letters stay hidden until <strong>start</strong> (that also applies whatever is in the seed field).
+              Use <strong>copy seed</strong> to share the board. After a round, the summary offers
+              <strong>copy compare link</strong> to compete with a friend!
             </p>
 
             <section class="wordhunt" aria-label="Word Hunt game">
@@ -75,16 +76,10 @@
                   maxlength="80"
                   autocomplete="off"
                   spellcheck="false"
-                  aria-label="Board seed — paste a friend’s or edit your own"
+                  aria-label="Board seed — paste or edit; applied when you press start"
                 />
-                <button type="button" class="wordhunt__btn wordhunt__btn--compact" id="wh-seed-apply">
-                  apply
-                </button>
                 <button type="button" class="wordhunt__btn wordhunt__btn--compact" id="wh-copy-seed">
                   copy seed
-                </button>
-                <button type="button" class="wordhunt__btn wordhunt__btn--compact" id="wh-copy-link">
-                  copy link
                 </button>
               </p>
 
@@ -114,6 +109,18 @@
                     <button type="button" class="wordhunt__expand" id="wh-summary-expand" hidden>
                       Show more words
                     </button>
+                    <p class="wordhunt__summary-compare" id="wh-summary-compare" hidden></p>
+                    <div class="wordhunt__summary-actions" id="wh-summary-actions" hidden>
+                      <p class="wordhunt__share-lead">Share with a friend!</p>
+                      <div class="wordhunt__summary-share-row">
+                        <button type="button" class="wordhunt__btn wordhunt__btn--compact" id="wh-copy-compare">
+                          copy compare link
+                        </button>
+                      </div>
+                      <p class="wordhunt__compare-hint muted">
+                        Compare link adds obfuscated stats so a friend on the same seed can compare after they play.
+                      </p>
+                    </div>
                   </div>
                 </div>
 

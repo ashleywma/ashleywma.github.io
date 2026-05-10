@@ -753,7 +753,7 @@ a:hover {
   background: var(--bg-elevated);
   color: var(--text);
   font: inherit;
-  font-size: clamp(0.95rem, 2.5vw, 1.2rem);
+  font-size: clamp(1.05rem, 2.85vw, 1.35rem);
   font-weight: 700;
   letter-spacing: 0.08em;
   display: grid;
@@ -771,6 +771,15 @@ a:hover {
 
 .wordhunt__tile.is-used {
   background: color-mix(in srgb, var(--bg-elevated) 70%, var(--bg-muted));
+}
+
+.wordhunt__tile.is-dict-word {
+  border-color: var(--string);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--string) 38%, transparent);
+}
+
+.wordhunt__tile.is-dict-word.is-used {
+  background: color-mix(in srgb, var(--string) 24%, var(--bg-elevated));
 }
 
 .wordhunt__current {
@@ -930,6 +939,80 @@ a:hover {
 .wordhunt__expand:focus-visible {
   outline: 2px solid var(--keyword);
   outline-offset: 2px;
+}
+
+.wordhunt__summary-compare {
+  margin: 0.75rem 0 0;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+.wordhunt__summary-actions {
+  margin-top: 0.65rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.45rem;
+}
+
+.wordhunt__share-lead {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
+
+.wordhunt__summary-share-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+}
+
+.wordhunt__compare-hint {
+  margin: 0;
+  font-size: 0.75rem;
+  max-width: 42ch;
+  line-height: 1.4;
+}
+
+.wordhunt__tile.wordhunt__tile--masked {
+  color: var(--comment);
+}
+
+@keyframes wordhunt-msg-flash-ok {
+  0% {
+    color: var(--text-muted);
+  }
+  35% {
+    color: var(--string);
+  }
+  100% {
+    color: var(--text-muted);
+  }
+}
+
+.wordhunt__msg.wordhunt__msg--flash-ok {
+  animation: wordhunt-msg-flash-ok 0.55s ease;
+}
+
+@keyframes wordhunt-word-flash-ok {
+  0% {
+    border-color: var(--border);
+    box-shadow: none;
+  }
+  35% {
+    border-color: color-mix(in srgb, var(--string) 55%, var(--border));
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--string) 25%, transparent);
+  }
+  100% {
+    border-color: var(--border);
+    box-shadow: none;
+  }
+}
+
+.wordhunt__word.wordhunt__word--flash-ok {
+  animation: wordhunt-word-flash-ok 0.55s ease;
 }
 
 .wordhunt__layout {
