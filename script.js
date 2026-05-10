@@ -150,6 +150,7 @@
     rows.push(
       topFolder("research", [
         linkRow("/research/sam-lab.html", "sam-lab.html", leaf === "sam-lab.html"),
+        linkRow("/research/iral-lab.html", "iral-lab.html", leaf === "iral-lab.html"),
       ])
     );
     rows.push(topFolder("employment", []));
@@ -326,6 +327,12 @@
       sam: "/research/sam-lab.html",
       samlab: "/research/sam-lab.html",
       "sam-lab": "/research/sam-lab.html",
+      iral: "/research/iral-lab.html",
+      iral_lab: "/research/iral-lab.html",
+      "iral-lab": "/research/iral-lab.html",
+      morphable: "/research/iral-lab.html",
+      morpheus: "/research/iral-lab.html",
+      tzoumas: "/research/iral-lab.html",
       employment: "/employment.html",
       work: "/employment.html",
       personal: "/personal.html",
@@ -344,7 +351,8 @@
       "projects/bwl": "/projects/bwl-dashboard.html",
       "education/overview": "/education.html",
       "research/sam-lab": "/research/sam-lab.html",
-      "research/overview": "/research/sam-lab.html",
+      "research/iral-lab": "/research/iral-lab.html",
+      "research/overview": "/research.html",
       "employment/overview": "/employment.html",
       "personal/overview": "/personal.html",
       "education/eecs281": "/education/eecs281.html",
@@ -353,6 +361,7 @@
       "/education.html": "/education.html",
       "/research.html": "/research.html",
       "/research/sam-lab.html": "/research/sam-lab.html",
+      "/research/iral-lab.html": "/research/iral-lab.html",
       "/employment.html": "/employment.html",
       "/personal.html": "/personal.html",
       "/education/eecs281.html": "/education/eecs281.html",
@@ -408,6 +417,7 @@
       research: [
         { type: "file", name: "overview.html" },
         { type: "file", name: "sam-lab.html" },
+        { type: "file", name: "iral-lab.html" },
       ],
       employment: [{ type: "file", name: "overview.html" }],
       personal: [{ type: "file", name: "overview.html" }],
@@ -617,24 +627,8 @@
         appendMuted("  (empty)");
         return;
       }
-      var ordered;
-      if (key === "") {
-        ordered = list.slice();
-      } else {
-        var dirs = [];
-        var files = [];
-        for (var i = 0; i < list.length; i++) {
-          if (list[i].type === "dir") dirs.push(list[i]);
-          else files.push(list[i]);
-        }
-        dirs.sort(function (a, b) {
-          return a.name.localeCompare(b.name);
-        });
-        files.sort(function (a, b) {
-          return a.name.localeCompare(b.name);
-        });
-        ordered = dirs.concat(files);
-      }
+      /* Preserve LS_DIRS order (e.g. research: sam-lab before iral-lab). */
+      var ordered = list.slice();
       for (var j = 0; j < ordered.length; j++) {
         var e = ordered[j];
         appendMuted("  " + (e.type === "dir" ? e.name + "/" : e.name));

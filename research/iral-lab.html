@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="iRaL: morphable quadrotor, ROS/Gazebo, trajectory planning, U-M Aerospace."
+    />
+    <title>research // iral-lab</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">skip to content</a>
+
+    <div class="app-shell app-shell--sidebar-collapsed">
+      <aside class="sidebar" id="sidebar-panel" aria-label="Explorer">
+        <div id="sidebar-root"></div>
+      </aside>
+
+      <div class="app-column">
+        <header class="site-header">
+          <div class="site-header__inner">
+            <div class="site-header__start">
+              <a class="logo" href="/index.html">~/site</a>
+            </div>
+            <div class="site-header__actions">
+              <button
+                type="button"
+                class="theme-toggle"
+                id="theme-toggle"
+                aria-label="switch to dark mode"
+                aria-pressed="false"
+                title="dark mode"
+              >
+                <span class="theme-toggle__icon" aria-hidden="true">◐</span>
+                <span class="theme-toggle__label">dark mode</span>
+              </button>
+            </div>
+          </div>
+        </header>
+
+        <main id="main">
+          <article class="section wrap doc doc--writeup">
+            <p class="muted comment">// research / iral-lab.html</p>
+            <p class="muted"><a href="/research.html">← research</a></p>
+            <h1><span class="prompt" aria-hidden="true"></span>iRaL: morphable quadrotor</h1>
+            <p>
+              Undergraduate researcher on the morphable quadrotor platform in the Intelligent
+              Robotics and Autonomy Lab (<span class="key">iRaL</span>), Aerospace Engineering,
+              University of Michigan, Ann Arbor.
+            </p>
+
+            <h2><span class="prompt" aria-hidden="true"></span>Lab &amp; advisor</h2>
+            <p>
+              I worked with Professor
+              <a href="https://vasileiostzoumas.com/" rel="noopener noreferrer">Vasileios Tzoumas</a>
+              on simulation and hardware-adjacent tasks for a tilt-rotor quadrotor that targets full
+              <span class="value">6-DOF</span> wrench authority, not just the four thrust axes of a
+              conventional quad. Project context:
+              <a href="https://iral-morphable.github.io/" rel="noopener noreferrer">morphable drone site</a>,
+              <a href="https://github.com/iral-morphable" rel="noopener noreferrer">GitHub org</a>, and
+              <a
+                href="https://aero.engin.umich.edu/2022/04/19/morphable-aerial-drones-building-simulators-and-hardware/"
+                rel="noopener noreferrer"
+                >Aero department write-up</a
+              >
+              on simulators and hardware.
+            </p>
+
+            <h2><span class="prompt" aria-hidden="true"></span>What I did</h2>
+            <ul class="doc__list">
+              <li>
+                Helped engineer the <span class="key">ROS</span> /
+                <span class="key">Gazebo</span> simulation stack (public codebase on GitHub) for a
+                morphable quadrotor with full 6-DOF control: dynamic morphing, trajectory planning,
+                and controller testing on <span class="key">Ubuntu</span>.
+              </li>
+              <li>
+                Worked with controls and hardware teammates so simulated dynamics tracked real flight
+                data across morphing configurations.
+              </li>
+              <li>Soldered board-level components that fly on the vehicle.</li>
+              <li>CAD support for a flight-test rig used to exercise the drone safely.</li>
+            </ul>
+
+            <h2><span class="prompt" aria-hidden="true"></span>Why morphing matters</h2>
+            <p>
+              A standard quadrotor only has four independent motor thrusts, so it is underactuated
+              for arbitrary wrenches in the body frame. Our platform adds actuated rotor tilt so the
+              thrust directions can change: that extra freedom is what enables the team to pursue
+              full 6-DOF control and more aggressive maneuvers than a fixed-pitch quad.
+            </p>
+
+            <h2><span class="prompt" aria-hidden="true"></span>Papers (Prof. Tzoumas &amp; team)</h2>
+            <p>
+              Morphable-aerial work moves quickly; a good entry point is the workshop paper on
+              <a href="https://arxiv.org/abs/2505.18270" rel="noopener noreferrer"
+                >MorphEUS: Morphable Omnidirectional Unmanned System</a
+              >
+              (ICRA OCRAIM workshop). The journal manuscript
+              <cite>MorphQuad: Morphable Quadrotor for Superhuman Maneuverability, Manipulation, and
+                Resiliency</cite>
+              is listed on Prof. Tzoumas's
+              <a href="https://vasileiostzoumas.com/publications/" rel="noopener noreferrer"
+                >publications page</a
+              >
+              
+            </p>
+
+            <h2><span class="prompt" aria-hidden="true"></span>Skills from this work:</h2>
+            <div class="doc-skills">
+              <section class="doc-skills__block" aria-label="Simulation and motion">
+                <p class="doc-skills__label">Simulation &amp; motion</p>
+                <p class="doc-skills__blurb">
+                  <span class="key">ROS</span> +
+                  <span class="key">Gazebo</span> UAV worlds: morphable quad model, plugins, and
+                  timestepped flight so controllers and morph schedules can be exercised before hardware (
+                  <a href="https://gazebosim.org/" rel="noopener noreferrer">Gazebo</a>).
+                </p>
+              </section>
+              <section class="doc-skills__block" aria-label="Planning and control">
+                <p class="doc-skills__label">Planning &amp; control</p>
+                <p class="doc-skills__blurb">
+                  Trajectory generation and <span class="value">6-DOF</span> test campaigns in sim:
+                  morph configurations, controller bring-up, and regression runs after changes.
+                </p>
+              </section>
+              <section class="doc-skills__block" aria-label="Robotics integration">
+                <p class="doc-skills__label">Robotics integration</p>
+                <p class="doc-skills__blurb">
+                  <span class="key">Ubuntu</span> dev machines, ROS workspace hygiene, and keeping the
+                  public sim repo aligned with what the airframe team flies.
+                </p>
+              </section>
+              <section class="doc-skills__block" aria-label="Hardware and CAD">
+                <p class="doc-skills__label">Hardware &amp; CAD</p>
+                <p class="doc-skills__blurb">
+                  Soldering board-level parts on the vehicle and CAD for a flight-test rig so outdoor
+                  tests stay repeatable and safe.
+                </p>
+              </section>
+              <section class="doc-skills__block" aria-label="Collaboration">
+                <p class="doc-skills__label">Collaboration</p>
+                <p class="doc-skills__blurb">
+                  Working with controls and hardware to match simulated dynamics to log data across
+                  morphing modes and real flight envelopes.
+                </p>
+              </section>
+              <section class="doc-skills__block" aria-label="Research practice">
+                <p class="doc-skills__label">Research practice</p>
+                <p class="doc-skills__blurb">
+                  Reading group papers (MorphEUS / MorphQuad line), turning requirements into sim
+                  milestones, and treating flight safety as non-negotiable.
+                </p>
+              </section>
+            </div>
+          </article>
+        </main>
+
+        <footer class="site-footer">
+          <div class="wrap site-footer__inner">
+            <p class="muted">
+              <span class="prompt" aria-hidden="true"></span>© <span id="year"></span> - plain HTML/CSS/JS
+            </p>
+          </div>
+        </footer>
+      </div>
+    </div>
+
+    <script src="/script.js"></script>
+  </body>
+</html>

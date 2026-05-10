@@ -697,6 +697,43 @@ a:hover {
   color: var(--accent);
 }
 
+.doc-skills {
+  display: grid;
+  gap: 1rem 1.5rem;
+  margin: 0 0 1.25rem;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 42rem) {
+  .doc-skills {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.doc-skills__block {
+  margin: 0;
+  padding: 0.75rem 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--bg-elevated) 88%, transparent);
+}
+
+.doc-skills__label {
+  margin: 0 0 0.4rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+.doc-skills__blurb {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+
 /* ---- Command terminal (IDE-style) ---- */
 .terminal-toggle {
   display: inline-flex;
