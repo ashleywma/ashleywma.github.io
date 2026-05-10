@@ -84,7 +84,8 @@
     const mount = document.getElementById("sidebar-root");
     if (!mount) return;
 
-    const { leaf } = normalizePath();
+    const { parts, leaf } = normalizePath();
+    const inBwl = parts.indexOf("bwl") !== -1;
 
     function linkRow(href, label, active) {
       return (
@@ -154,8 +155,14 @@
     );
     rows.push(
       topFolder("employment", [
+        nestedFolder("bwl", [
+          linkRow(
+            "/employment/bwl/visualcron.html",
+            "visualcron.html",
+            inBwl && leaf === "visualcron.html"
+          ),
+        ]),
         linkRow("/employment/cse220-ta.html", "cse220-ta.html", leaf === "cse220-ta.html"),
-        nestedFolder("bwl", []),
       ])
     );
     rows.push(topFolder("classes", []));
@@ -367,6 +374,8 @@
       "projects/bwl": "/employment/bwl/overview.html",
       "employment/bwl": "/employment/bwl/overview.html",
       "employment/bwl/overview": "/employment/bwl/overview.html",
+      "employment/bwl/visualcron": "/employment/bwl/visualcron.html",
+      visualcron: "/employment/bwl/visualcron.html",
       "education/overview": "/classes.html",
       "classes/overview": "/classes.html",
       "research/sam-lab": "/research/sam-lab.html",
@@ -390,6 +399,7 @@
       "/employment.html": "/employment.html",
       "/employment/cse220-ta.html": "/employment/cse220-ta.html",
       "/employment/bwl/overview.html": "/employment/bwl/overview.html",
+      "/employment/bwl/visualcron.html": "/employment/bwl/visualcron.html",
       "/personal.html": "/personal.html",
       "/personal/artwork.html": "/personal/artwork.html",
       "/personal/dance.html": "/personal/dance.html",
@@ -449,10 +459,10 @@
       ],
       employment: [
         { type: "file", name: "overview.html" },
-        { type: "file", name: "cse220-ta.html" },
         { type: "dir", name: "bwl" },
+        { type: "file", name: "cse220-ta.html" },
       ],
-      "employment/bwl": [],
+      "employment/bwl": [{ type: "file", name: "visualcron.html" }],
       personal: [
         { type: "file", name: "artwork.html" },
         { type: "file", name: "dance.html" },

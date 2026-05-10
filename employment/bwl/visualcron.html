@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Internal VisualCron job directory: ASP.NET Core, SQL Server, Excel export — technical overview only."
+    />
+    <title>employment // bwl / visualcron</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">skip to content</a>
+
+    <div class="app-shell app-shell--sidebar-collapsed">
+      <aside class="sidebar" id="sidebar-panel" aria-label="Explorer">
+        <div id="sidebar-root"></div>
+      </aside>
+
+      <div class="app-column">
+        <header class="site-header">
+          <div class="site-header__inner">
+            <div class="site-header__start">
+              <a class="logo" href="/index.html">~/site</a>
+            </div>
+            <div class="site-header__actions">
+              <button
+                type="button"
+                class="theme-toggle"
+                id="theme-toggle"
+                aria-label="switch to dark mode"
+                aria-pressed="false"
+                title="dark mode"
+              >
+                <span class="theme-toggle__icon" aria-hidden="true">◐</span>
+                <span class="theme-toggle__label">dark mode</span>
+              </button>
+            </div>
+          </div>
+        </header>
+
+        <main id="main">
+          <article class="section wrap doc doc--writeup">
+            <p class="muted comment">// employment / bwl / visualcron.html</p>
+            <p class="muted"><a href="/employment/bwl/overview.html">← employment / bwl / overview.html</a></p>
+            <h1><span class="prompt" aria-hidden="true"></span>VisualCron applications (internal)</h1>
+            <p class="muted">
+              Portfolio summary only — the running app and repository stay private to the org.
+            </p>
+
+            <h2><span class="prompt" aria-hidden="true"></span>Purpose</h2>
+            <p>
+              Internal directory for <strong>active scheduler jobs</strong>: one web page that answers
+              “what runs, how often, when it last ran, and who gets notified on success or failure”—so
+              people do not have to piece that together only from the native scheduler client.
+            </p>
+
+            <h2><span class="prompt" aria-hidden="true"></span>Stack</h2>
+            <p>
+              <strong>ASP.NET Core 8</strong>, <strong>Razor Pages</strong>, single main page plus a
+              download handler. Dependency injection registers a scoped <strong>repository</strong> that
+              loads the job list on each GET.
+            </p>
+
+            <h2><span class="prompt" aria-hidden="true"></span>Data</h2>
+            <p>
+              Jobs live in <strong>SQL Server</strong>. The app reads a relational catalog and keeps only
+              <strong>enabled</strong> rows. Access goes through <span class="key">ADO.NET</span>
+              (<code>SqlConnection</code>, <code>SqlCommand</code>, async reader) into a small C# row
+              model—no ORM.
+            </p>
+            <p>
+              The connection string is stored <strong>encrypted</strong> in configuration and
+              <strong>decrypted when the process starts</strong>, so credentials are not committed as
+              plaintext.
+            </p>
+
+            <h2><span class="prompt" aria-hidden="true"></span>UI</h2>
+            <p>
+              Results render as an HTML table (name, description, cadence, last run, email targets for
+              success and failure). <strong>DataTables</strong> adds client-side paging and sorting on
+              that table after load.
+            </p>
+
+            <h2><span class="prompt" aria-hidden="true"></span>Export</h2>
+            <p>
+              A Razor page handler builds the <strong>same columns</strong> in an <strong>Excel</strong>
+              workbook via <strong>ClosedXML</strong> and returns a download with a
+              <strong>timestamped</strong> filename (audits, handoffs, or attachments).
+            </p>
+
+            <h2><span class="prompt" aria-hidden="true"></span>Hosting &amp; access</h2>
+            <p>
+              Standard ASP.NET Core pipeline: HTTPS redirection, static files, Razor routing.
+              Production can enforce an <strong>enterprise authorization policy</strong> (e.g. directory
+              group); dev often relaxes that for local work. Deployment stays on the <strong>org
+              network</strong>—not exposed through this personal site.
+            </p>
+
+            <h2><span class="prompt" aria-hidden="true"></span>Technical scope</h2>
+            <div class="doc-skills">
+              <section class="doc-skills__block" aria-label="Backend">
+                <p class="doc-skills__label">Backend</p>
+                <p class="doc-skills__blurb">
+                  <span class="key">.NET 8</span> Razor Pages, DI-scoped repository, async SQL reads.
+                </p>
+              </section>
+              <section class="doc-skills__block" aria-label="Data">
+                <p class="doc-skills__label">Data</p>
+                <p class="doc-skills__blurb">
+                  SQL Server job catalog; active-job filter; row model mapped in C#.
+                </p>
+              </section>
+              <section class="doc-skills__block" aria-label="Frontend">
+                <p class="doc-skills__label">Frontend</p>
+                <p class="doc-skills__blurb">
+                  Bootstrap-style layout; DataTables for paging/sort; no sensitive data on this page.
+                </p>
+              </section>
+              <section class="doc-skills__block" aria-label="Export and security">
+                <p class="doc-skills__label">Export &amp; config</p>
+                <p class="doc-skills__blurb">
+                  ClosedXML xlsx export; encrypted connection string pattern; internal-only deployment.
+                </p>
+              </section>
+            </div>
+          </article>
+        </main>
+
+        <footer class="site-footer">
+          <div class="wrap site-footer__inner">
+            <p class="muted">
+              <span class="prompt" aria-hidden="true"></span>© <span id="year"></span> — plain HTML/CSS/JS
+            </p>
+          </div>
+        </footer>
+      </div>
+    </div>
+
+    <script src="/script.js"></script>
+  </body>
+</html>
