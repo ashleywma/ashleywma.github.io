@@ -81,10 +81,31 @@
     return out;
   }
 
-  /** @param {string} seed */
-  function encodeStatsPayload(seed, score, nWords) {
+  /** Max words embedded in compare link (URL size); sorted by points, highest first. */
+  const MAX_COMPARE_WORDS_IN_URL = 80;
+
+  /** @param {Map<string, number>} foundScores */
+  function wordListForComparePayload(foundScores) {
+    const entries = Array.from(foundScores.entries()).map(([word, pts]) => ({
+      word: word.toLowerCase(),
+      pts,
+    }));
+    entries.sort((a, b) => b.pts - a.pts || a.word.localeCompare(b.word));
+    const truncated = entries.length > MAX_COMPARE_WORDS_IN_URL;
+    const slice = truncated ? entries.slice(0, MAX_COMPARE_WORDS_IN_URL) : entries;
+    return { w: slice.map((e) => e.word), truncated };
+  }
+
+  /** @param {string} seed @param {Map<string, number> | undefined} foundScores */
+  function encodeStatsPayload(seed, score, nWords, foundScores) {
     const enc = new TextEncoder();
-    const bytes = enc.encode(JSON.stringify({ s: score, n: nWords }));
+    const payload = { s: score, n: nWords };
+    if (foundScores && foundScores.size > 0) {
+      const { w, truncated } = wordListForComparePayload(foundScores);
+      payload.w = w;
+      if (truncated) payload.wt = true;
+    }
+    const bytes = enc.encode(JSON.stringify(payload));
     const key = expandStatKey(seed, bytes.length);
     const out = new Uint8Array(bytes.length);
     for (let i = 0; i < bytes.length; i++) out[i] = bytes[i] ^ key[i];
@@ -100,7 +121,17 @@
       for (let i = 0; i < raw.length; i++) dec[i] = raw[i] ^ key[i];
       const o = JSON.parse(new TextDecoder().decode(dec));
       if (typeof o.s !== "number" || typeof o.n !== "number") return null;
-      return { score: o.s, words: o.n };
+      /** @type {string[] | null} */
+      let wordList = null;
+      if (Array.isArray(o.w)) {
+        wordList = o.w.filter((x) => typeof x === "string").map((x) => String(x).toLowerCase());
+      }
+      return {
+        score: o.s,
+        words: o.n,
+        wordList,
+        wordsTruncated: o.wt === true,
+      };
     } catch (_) {
       return null;
     }
@@ -238,11 +269,17 @@
   /** Read seed field (or random if empty), sync URL, rebuild board. Call when starting a round or from new-board flows that need input sync. */
   function commitSeedFromInput() {
     let raw = elSeedInput ? stripLegacyAutoPrefix(elSeedInput.value) : "";
+    const prevSeed = urlBaseSeed;
+    const hadRival = rivalEncodedFromUrl != null;
+    let generatedNew = false;
     if (raw === "") {
       raw = generateAutoSeedString();
+      generatedNew = true;
     }
     urlBaseSeed = raw;
-    syncSeededUrl({ clearRival: true });
+    const seedMatchesLoaded = prevSeed != null && prevSeed === raw;
+    const preserveRival = hadRival && seedMatchesLoaded && !generatedNew;
+    syncSeededUrl({ clearRival: !preserveRival });
     board = generateBoard();
     renderBoard();
     clearSelection();
@@ -275,6 +312,9 @@
   /** After a finished round, next start rolls a new seed/board so the same grid is never replayed. */
   let mustRollBeforeNextStart = false;
 
+  /** @type {number | null} */
+  let seedFeedbackTimer = null;
+
   /** @type {Map<string, number>} word (lowercase) → points for that word */
   let foundScores = new Map();
   let score = 0;
@@ -303,6 +343,28 @@
 
   function setCurrent(text) {
     elCurrent.textContent = text;
+  }
+
+  function clearSeedCopiedFeedback() {
+    if (seedFeedbackTimer != null) {
+      window.clearTimeout(seedFeedbackTimer);
+      seedFeedbackTimer = null;
+    }
+    const el = $("wh-seed-feedback");
+    if (el) el.textContent = "";
+  }
+
+  function showSeedCopiedFeedback() {
+    setMsg("Seed copied.");
+    const el = $("wh-seed-feedback");
+    if (el) {
+      el.textContent = "Seed copied.";
+      if (seedFeedbackTimer != null) window.clearTimeout(seedFeedbackTimer);
+      seedFeedbackTimer = window.setTimeout(() => {
+        el.textContent = "";
+        seedFeedbackTimer = null;
+      }, 2200);
+    }
   }
 
   function updateStats() {
@@ -587,6 +649,126 @@
     return li;
   }
 
+  /** Re-score words from a compare payload (points are deterministic from length). */
+  function entriesFromDecodedWords(words) {
+    if (!words || !words.length) return [];
+    return words
+      .map((word) => ({ word, pts: scoreWord(word.length) }))
+      .sort((a, b) => b.pts - a.pts || a.word.localeCompare(b.word));
+  }
+
+  function populateSummaryListWithExpand(listEl, expandEl, entries) {
+    if (!listEl || !expandEl) return;
+    listEl.innerHTML = "";
+    expandEl.hidden = true;
+    expandEl.textContent = "Show more words";
+    expandEl.onclick = null;
+    if (entries.length === 0) return;
+
+    const shown = entries.slice(0, SUMMARY_MAX_WORDS);
+    const frag = document.createDocumentFragment();
+    for (const { word, pts } of shown) frag.append(summaryRow(word, pts));
+    listEl.append(frag);
+
+    const extra = entries.length - SUMMARY_MAX_WORDS;
+    if (extra > 0) {
+      expandEl.hidden = false;
+      expandEl.textContent = `Show ${extra} more ${extra === 1 ? "word" : "words"}`;
+      expandEl.onclick = () => {
+        const rest = entries.slice(SUMMARY_MAX_WORDS);
+        const moreFrag = document.createDocumentFragment();
+        for (const { word, pts } of rest) moreFrag.append(summaryRow(word, pts));
+        listEl.append(moreFrag);
+        expandEl.hidden = true;
+        expandEl.onclick = null;
+      };
+    }
+  }
+
+  function hideCompareDualPanel() {
+    const elDual = $("wh-compare-dual");
+    if (elDual) elDual.hidden = true;
+    const elWinner = $("wh-compare-winner");
+    if (elWinner) elWinner.textContent = "";
+    const elFriendLead = $("wh-compare-friend-lead");
+    const elYouLead = $("wh-compare-you-lead");
+    if (elFriendLead) elFriendLead.textContent = "";
+    if (elYouLead) elYouLead.textContent = "";
+    const elFriendList = $("wh-compare-friend-list");
+    const elYouList = $("wh-compare-you-list");
+    if (elFriendList) elFriendList.innerHTML = "";
+    if (elYouList) elYouList.innerHTML = "";
+    const elFriendEx = $("wh-compare-friend-expand");
+    const elYouEx = $("wh-compare-you-expand");
+    if (elFriendEx) {
+      elFriendEx.hidden = true;
+      elFriendEx.onclick = null;
+    }
+    if (elYouEx) {
+      elYouEx.hidden = true;
+      elYouEx.onclick = null;
+    }
+    if (elSummaryList) elSummaryList.hidden = false;
+  }
+
+  /** @param {{ score: number, words: number, wordList: string[] | null, wordsTruncated: boolean }} other */
+  function renderCompareDual(other, finalScore, finalWordCount) {
+    const elDual = $("wh-compare-dual");
+    const elWinner = $("wh-compare-winner");
+    const elFriendLead = $("wh-compare-friend-lead");
+    const elYouLead = $("wh-compare-you-lead");
+    const elFriendList = $("wh-compare-friend-list");
+    const elYouList = $("wh-compare-you-list");
+    const elFriendEx = $("wh-compare-friend-expand");
+    const elYouEx = $("wh-compare-you-expand");
+
+    if (!elDual || !elWinner || !elFriendLead || !elYouLead || !elFriendList || !elYouList || !elFriendEx || !elYouEx) {
+      return;
+    }
+
+    let winner = "Tie";
+    if (finalScore !== other.score) winner = finalScore > other.score ? "You" : "Friend";
+    else if (finalWordCount !== other.words) winner = finalWordCount > other.words ? "You" : "Friend";
+    elWinner.textContent = `Winner: ${winner}`;
+
+    let friendLead = `${other.words} words · ${other.score} pts`;
+    if (other.wordsTruncated && other.wordList && other.wordList.length > 0) {
+      friendLead += ` · showing top ${other.wordList.length} words by score`;
+    }
+    elFriendLead.textContent = friendLead;
+    elYouLead.textContent = `${finalWordCount} words · ${finalScore} pts`;
+
+    if (elSummaryLead) {
+      elSummaryLead.textContent = "Same board — your words vs theirs";
+    }
+
+    if (elSummaryList) elSummaryList.hidden = true;
+    if (elSummaryExpand) {
+      elSummaryExpand.hidden = true;
+      elSummaryExpand.onclick = null;
+    }
+
+    elFriendList.innerHTML = "";
+    const friendEntries = entriesFromDecodedWords(other.wordList);
+    if (friendEntries.length === 0) {
+      const li = document.createElement("li");
+      li.className = "wordhunt__compare-empty muted";
+      li.textContent =
+        "No word list in this link (older compare links only had totals). Ask your friend to send a freshly copied compare link.";
+      elFriendList.append(li);
+      elFriendEx.hidden = true;
+      elFriendEx.onclick = null;
+    } else {
+      populateSummaryListWithExpand(elFriendList, elFriendEx, friendEntries);
+    }
+
+    const yourEntries = Array.from(foundScores.entries()).map(([word, pts]) => ({ word, pts }));
+    yourEntries.sort((a, b) => b.pts - a.pts || a.word.localeCompare(b.word));
+    populateSummaryListWithExpand(elYouList, elYouEx, yourEntries);
+
+    elDual.hidden = false;
+  }
+
   function hideRoundSummary() {
     if (!elSummary || !elSummaryLead || !elSummaryList) return;
     if (elPlay) elPlay.hidden = false;
@@ -599,15 +781,13 @@
       elSummaryExpand.textContent = "Show more words";
       elSummaryExpand.onclick = null;
     }
-    const elComp = $("wh-summary-compare");
+    hideCompareDualPanel();
     const elAct = $("wh-summary-actions");
     const elCopyCmp = $("wh-copy-compare");
-    if (elComp) {
-      elComp.hidden = true;
-      elComp.textContent = "";
-    }
+    const elStatus = $("wh-summary-status");
     if (elAct) elAct.hidden = true;
     if (elCopyCmp) elCopyCmp.onclick = null;
+    if (elStatus) elStatus.textContent = "";
     syncTileLetters();
   }
 
@@ -659,40 +839,37 @@
   }
 
   function finishRoundShareUI(finalScore, finalWordCount) {
-    const elComp = $("wh-summary-compare");
     const elAct = $("wh-summary-actions");
     const elCopyCmp = $("wh-copy-compare");
+    const elStatus = $("wh-summary-status");
 
-    if (elComp && urlBaseSeed && rivalEncodedFromUrl) {
+    if (urlBaseSeed && rivalEncodedFromUrl) {
       const other = decodeStatsPayload(urlBaseSeed, rivalEncodedFromUrl);
       if (other) {
-        elComp.hidden = false;
-        let line = `Their run (from link): ${other.words} words, ${other.score} pts. Yours: ${finalWordCount} words, ${finalScore} pts.`;
-        if (finalScore > other.score) line += " You scored higher on points.";
-        else if (finalScore < other.score) line += " They scored higher on points.";
-        else line += " Same points.";
-        elComp.textContent = line;
+        renderCompareDual(other, finalScore, finalWordCount);
       } else {
-        elComp.hidden = true;
-        elComp.textContent = "";
+        hideCompareDualPanel();
       }
-    } else if (elComp) {
-      elComp.hidden = true;
-      elComp.textContent = "";
+    } else {
+      hideCompareDualPanel();
     }
 
     if (elAct && urlBaseSeed) {
       elAct.hidden = false;
       if (elCopyCmp) {
         elCopyCmp.onclick = async () => {
-          const enc = encodeStatsPayload(urlBaseSeed, finalScore, finalWordCount);
+          const enc = encodeStatsPayload(urlBaseSeed, finalScore, finalWordCount, foundScores);
           const u = new URL(location.href);
           u.searchParams.set("seed", urlBaseSeed);
           u.searchParams.set("rival", enc);
           u.searchParams.delete("board");
           const ok = await copyTextRobust(u.toString());
-          if (ok) setMsg("Compare link copied.");
-          else window.prompt("Copy compare link:", u.toString());
+          if (ok) {
+            if (elStatus) elStatus.textContent = "Compare link copied.";
+            else setMsg("Compare link copied.");
+          } else {
+            window.prompt("Copy compare link:", u.toString());
+          }
         };
       }
     } else if (elAct) {
@@ -753,6 +930,7 @@
 
   function startRound() {
     if (!DICT) return;
+    clearSeedCopiedFeedback();
     hideRoundSummary();
     if (mustRollBeforeNextStart) {
       rollNewChallenge();
@@ -927,7 +1105,7 @@
         const text = urlBaseSeed ?? "";
         if (!text) return;
         const ok = await copyTextRobust(text);
-        if (ok) setMsg("Seed copied.");
+        if (ok) showSeedCopiedFeedback();
         else window.prompt("Copy this seed (Ctrl/Cmd+C):", text);
       });
     }

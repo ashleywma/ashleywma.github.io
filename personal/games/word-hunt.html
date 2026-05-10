@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Word Hunt: 5×5 letter board, timer, dictionary check, seeds and compare links." />
+    <title>personal // games // word-hunt</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">skip to content</a>
+
+    <div class="app-shell app-shell--sidebar-collapsed">
+      <aside class="sidebar" id="sidebar-panel" aria-label="Explorer">
+        <div id="sidebar-root"></div>
+      </aside>
+
+      <div class="app-column">
+        <header class="site-header">
+          <div class="site-header__inner">
+            <div class="site-header__start">
+              <a class="logo" href="/index.html">~/site</a>
+            </div>
+            <div class="site-header__actions">
+              <button
+                type="button"
+                class="theme-toggle"
+                id="theme-toggle"
+                aria-label="switch to dark mode"
+                aria-pressed="false"
+                title="dark mode"
+              >
+                <span class="theme-toggle__icon" aria-hidden="true">◐</span>
+                <span class="theme-toggle__label">dark mode</span>
+              </button>
+            </div>
+          </div>
+        </header>
+
+        <main id="main">
+          <article class="section wrap doc doc--personal">
+            <p class="muted comment">// personal / games / word-hunt.html</p>
+            <p class="muted"><a href="/personal/games/">← games</a> · <a href="/personal.html">personal</a></p>
+            <h1><span class="prompt" aria-hidden="true"></span>Games</h1>
+
+            <h2><span class="prompt" aria-hidden="true"></span>Word Hunt (GamePigeon)</h2>
+            <p>
+              Letters stay hidden until <strong>start</strong> (that also applies whatever is in the seed field).
+              Use <strong>copy seed</strong> to share the board. After a round, the summary offers
+              <strong>copy compare link</strong> to compete with a friend!
+            </p>
+
+            <section class="wordhunt" aria-label="Word Hunt game">
+              <div class="wordhunt__top">
+                <div class="wordhunt__stat"><span class="key">time</span> <strong id="wh-time">90</strong></div>
+                <div class="wordhunt__stat"><span class="key">score</span> <strong id="wh-score">0</strong></div>
+                <div class="wordhunt__stat"><span class="key">words</span> <strong id="wh-count">0</strong></div>
+                <div class="wordhunt__controls">
+                  <button class="wordhunt__btn" type="button" id="wh-start" disabled>start</button>
+                  <button class="wordhunt__btn" type="button" id="wh-new" disabled>new board</button>
+                </div>
+              </div>
+
+              <p class="wordhunt__seed-line" id="wh-seed-line" hidden>
+                <span class="key">seed</span>
+                <input
+                  type="text"
+                  class="wordhunt__seed-input"
+                  id="wh-seed-input"
+                  maxlength="80"
+                  autocomplete="off"
+                  spellcheck="false"
+                  aria-label="Board seed — paste or edit; applied when you press start"
+                />
+                <button type="button" class="wordhunt__btn wordhunt__btn--compact" id="wh-copy-seed">
+                  copy seed
+                </button>
+                <span class="wordhunt__seed-feedback muted" id="wh-seed-feedback" aria-live="polite"></span>
+              </p>
+
+              <div class="wordhunt__layout">
+                <div class="wordhunt__main-col">
+                  <div class="wordhunt__play" id="wh-play">
+                    <div class="wordhunt__current" id="wh-current" aria-live="polite"></div>
+                    <p class="wordhunt__msg" id="wh-msg">Loading dictionary…</p>
+                    <div class="wordhunt__board-wrap" id="wh-board-wrap">
+                      <svg
+                        class="wordhunt__trace"
+                        id="wh-trace"
+                        aria-hidden="true"
+                        viewBox="0 0 100 100"
+                        preserveAspectRatio="none"
+                      ></svg>
+                      <div class="wordhunt__board" id="wh-board" role="grid" aria-label="5 by 5 letter board"></div>
+                    </div>
+                  </div>
+
+                  <div class="wordhunt__summary" id="wh-summary" hidden>
+                    <h3 class="wordhunt__summary-title">
+                      <span class="prompt" aria-hidden="true"></span>round summary
+                    </h3>
+                    <p class="wordhunt__summary-lead" id="wh-summary-lead"></p>
+                    <ul class="wordhunt__summary-list" id="wh-summary-list"></ul>
+                    <button type="button" class="wordhunt__expand" id="wh-summary-expand" hidden>
+                      Show more words
+                    </button>
+                    <div class="wordhunt__compare-dual" id="wh-compare-dual" hidden>
+                      <p class="wordhunt__compare-winner" id="wh-compare-winner"></p>
+                      <div class="wordhunt__compare-columns">
+                        <section class="wordhunt__compare-col" aria-label="Friend summary">
+                          <h4 class="wordhunt__compare-col-title">Friend</h4>
+                          <p class="wordhunt__compare-col-lead" id="wh-compare-friend-lead"></p>
+                          <ul class="wordhunt__summary-list wordhunt__compare-col-list" id="wh-compare-friend-list"></ul>
+                          <button type="button" class="wordhunt__expand" id="wh-compare-friend-expand" hidden>
+                            Show more words
+                          </button>
+                        </section>
+                        <section class="wordhunt__compare-col" aria-label="Your summary">
+                          <h4 class="wordhunt__compare-col-title">You</h4>
+                          <p class="wordhunt__compare-col-lead" id="wh-compare-you-lead"></p>
+                          <ul class="wordhunt__summary-list wordhunt__compare-col-list" id="wh-compare-you-list"></ul>
+                          <button type="button" class="wordhunt__expand" id="wh-compare-you-expand" hidden>
+                            Show more words
+                          </button>
+                        </section>
+                      </div>
+                    </div>
+                    <div class="wordhunt__summary-actions" id="wh-summary-actions" hidden>
+                      <p class="wordhunt__share-lead">Share with a friend!</p>
+                      <div class="wordhunt__summary-share-row">
+                        <button type="button" class="wordhunt__btn wordhunt__btn--compact" id="wh-copy-compare">
+                          copy compare link
+                        </button>
+                      </div>
+                      <p class="wordhunt__share-status muted" id="wh-summary-status" aria-live="polite"></p>
+                      <p class="wordhunt__compare-hint muted">
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <aside class="wordhunt__found" id="wh-found" aria-label="Found words">
+                  <h3><span class="prompt" aria-hidden="true"></span>found</h3>
+                  <ul class="wordhunt__words" id="wh-words"></ul>
+                </aside>
+              </div>
+            </section>
+          </article>
+        </main>
+
+        <footer class="site-footer">
+          <div class="wrap site-footer__inner">
+            <p class="muted">
+              <span class="prompt" aria-hidden="true"></span>© <span id="year"></span> - plain HTML/CSS/JS
+            </p>
+          </div>
+        </footer>
+      </div>
+    </div>
+
+    <script src="/script.js"></script>
+    <script src="/assets/games/word-hunt.js"></script>
+  </body>
+</html>

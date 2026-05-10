@@ -705,15 +705,38 @@ a:hover {
   color: var(--text);
   padding: 0.4rem 0.65rem;
   cursor: pointer;
+  transition:
+    transform 0.07s ease,
+    background 0.07s ease,
+    border-color 0.07s ease,
+    box-shadow 0.07s ease;
 }
 
 .wordhunt__btn:hover {
   border-color: color-mix(in srgb, var(--keyword) 35%, var(--border));
 }
 
+.wordhunt__btn:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--keyword) 55%, transparent);
+  outline-offset: 2px;
+}
+
+.wordhunt__btn:active:not(:disabled) {
+  transform: translateY(1px) scale(0.98);
+  background: color-mix(in srgb, var(--bg-muted) 40%, var(--bg-elevated));
+  border-color: color-mix(in srgb, var(--keyword) 50%, var(--border));
+  box-shadow: inset 0 1px 2px color-mix(in srgb, var(--text) 8%, transparent);
+}
+
 .wordhunt__btn:disabled {
   opacity: 0.55;
   cursor: not-allowed;
+}
+
+.wordhunt__seed-feedback {
+  flex: 0 0 auto;
+  font-size: 0.75rem;
+  min-height: 1.1rem;
 }
 
 .wordhunt__board-wrap {
@@ -764,6 +787,11 @@ a:hover {
   user-select: none;
   -webkit-user-select: none;
   -webkit-touch-callout: none;
+  transition: transform 0.06s ease, background 0.06s ease, border-color 0.06s ease;
+}
+
+.wordhunt__tile:active:not(:disabled) {
+  transform: scale(0.96);
 }
 
 .wordhunt__tile.is-active {
@@ -794,10 +822,20 @@ a:hover {
 }
 
 .wordhunt__current {
-  min-height: 1.5rem;
+  height: 1.5rem;
+  line-height: 1.5rem;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  overflow: hidden;
   color: var(--text);
   font-weight: 600;
   letter-spacing: 0.04em;
+}
+
+.wordhunt__share-status {
+  margin: 0;
+  min-height: 1.1rem;
 }
 
 .wordhunt__msg {
@@ -941,6 +979,7 @@ a:hover {
   text-align: left;
   text-decoration: underline;
   text-underline-offset: 2px;
+  transition: opacity 0.06s ease, transform 0.06s ease, color 0.12s ease;
 }
 
 .wordhunt__expand:hover {
@@ -952,11 +991,75 @@ a:hover {
   outline-offset: 2px;
 }
 
-.wordhunt__summary-compare {
-  margin: 0.75rem 0 0;
+.wordhunt__expand:active {
+  opacity: 0.72;
+  transform: translateY(1px);
+}
+
+.wordhunt__compare-dual {
+  margin-top: 0.65rem;
+}
+
+.wordhunt__compare-winner {
+  margin: 0 0 0.65rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.wordhunt__compare-columns {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  align-items: start;
+}
+
+.wordhunt__compare-col {
+  min-width: 0;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid color-mix(in srgb, var(--border) 80%, transparent);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--bg-muted) 35%, var(--bg-elevated));
+}
+
+.wordhunt__compare-col-title {
+  margin: 0 0 0.35rem;
   font-size: 0.8125rem;
-  line-height: 1.5;
+  font-weight: 600;
   color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.wordhunt__compare-col-lead {
+  margin: 0 0 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.4;
+}
+
+.wordhunt__compare-col-list {
+  max-height: min(14rem, 38vh);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  line-height: 1.55;
+}
+
+.wordhunt__compare-col .wordhunt__expand {
+  margin-top: 0.45rem;
+}
+
+.wordhunt__compare-empty {
+  list-style: none;
+  padding: 0.35rem 0;
+  font-size: 0.8125rem;
+  line-height: 1.45;
 }
 
 .wordhunt__summary-actions {
@@ -1045,6 +1148,15 @@ a:hover {
 
   .wordhunt__layout:has(#wh-found[hidden]) .wordhunt__summary {
     max-width: min(34rem, 100%);
+  }
+
+  .wordhunt__layout:has(#wh-compare-dual:not([hidden])) .wordhunt__summary {
+    max-width: min(42rem, 100%);
+  }
+
+  .wordhunt__compare-columns {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.85rem;
   }
 
   .wordhunt__found {
