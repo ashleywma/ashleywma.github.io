@@ -657,6 +657,37 @@
       .sort((a, b) => b.pts - a.pts || a.word.localeCompare(b.word));
   }
 
+  /** Plain text for pasting to a friend after a compare round (no URL). */
+  function formatCompareResultsPlainText(other, finalScore, finalWordCount) {
+    let winnerSide = "Tie";
+    if (finalScore !== other.score) winnerSide = finalScore > other.score ? "You" : "Friend";
+    else if (finalWordCount !== other.words) winnerSide = finalWordCount > other.words ? "You" : "Friend";
+
+    const shout = winnerSide === "You" ? "I won!" : winnerSide === "Friend" ? "You won!" : "We tied!";
+    const winnerNeutral =
+      winnerSide === "You" ? "Player 2" : winnerSide === "Friend" ? "Player 1" : "Tie";
+
+    const lines = [shout, "", `Winner: ${winnerNeutral}`, "", `Player 1 — ${other.words} words, ${other.score} pts`];
+    if (other.wordsTruncated && other.wordList && other.wordList.length > 0) {
+      lines.push(`(Player 1 words in link: top ${other.wordList.length} by score)`);
+    }
+    const friendEntries = entriesFromDecodedWords(other.wordList);
+    if (friendEntries.length === 0) {
+      lines.push("(No word list in link for player 1 — totals only.)");
+    } else {
+      for (const { word, pts } of friendEntries) {
+        lines.push(`  ${word.toUpperCase()} · ${pts} pts`);
+      }
+    }
+    lines.push("", `Player 2 — ${finalWordCount} words, ${finalScore} pts`);
+    const yourEntries = Array.from(foundScores.entries()).map(([word, pts]) => ({ word, pts }));
+    yourEntries.sort((a, b) => b.pts - a.pts || a.word.localeCompare(b.word));
+    for (const { word, pts } of yourEntries) {
+      lines.push(`  ${word.toUpperCase()} · ${pts} pts`);
+    }
+    return lines.join("\n");
+  }
+
   function populateSummaryListWithExpand(listEl, expandEl, entries) {
     if (!listEl || !expandEl) return;
     listEl.innerHTML = "";
@@ -726,10 +757,12 @@
       return;
     }
 
-    let winner = "Tie";
-    if (finalScore !== other.score) winner = finalScore > other.score ? "You" : "Friend";
-    else if (finalWordCount !== other.words) winner = finalWordCount > other.words ? "You" : "Friend";
-    elWinner.textContent = `Winner: ${winner}`;
+    let winnerSide = "Tie";
+    if (finalScore !== other.score) winnerSide = finalScore > other.score ? "You" : "Friend";
+    else if (finalWordCount !== other.words) winnerSide = finalWordCount > other.words ? "You" : "Friend";
+    const winnerNeutral =
+      winnerSide === "You" ? "Player 2" : winnerSide === "Friend" ? "Player 1" : "Tie";
+    elWinner.textContent = `Winner: ${winnerNeutral}`;
 
     let friendLead = `${other.words} words · ${other.score} pts`;
     if (other.wordsTruncated && other.wordList && other.wordList.length > 0) {
@@ -738,9 +771,7 @@
     elFriendLead.textContent = friendLead;
     elYouLead.textContent = `${finalWordCount} words · ${finalScore} pts`;
 
-    if (elSummaryLead) {
-      elSummaryLead.textContent = "Same board — your words vs theirs";
-    }
+    if (elSummaryLead) elSummaryLead.textContent = "";
 
     if (elSummaryList) elSummaryList.hidden = true;
     if (elSummaryExpand) {
@@ -754,7 +785,7 @@
       const li = document.createElement("li");
       li.className = "wordhunt__compare-empty muted";
       li.textContent =
-        "No word list in this link (older compare links only had totals). Ask your friend to send a freshly copied compare link.";
+        "No word list for player 1 in this link (older shares only had totals). Ask player 1 to send a freshly copied compare link.";
       elFriendList.append(li);
       elFriendEx.hidden = true;
       elFriendEx.onclick = null;
@@ -784,9 +815,19 @@
     hideCompareDualPanel();
     const elAct = $("wh-summary-actions");
     const elCopyCmp = $("wh-copy-compare");
+    const elCopyRes = $("wh-copy-results");
+    const elShareLead = $("wh-share-lead");
     const elStatus = $("wh-summary-status");
     if (elAct) elAct.hidden = true;
-    if (elCopyCmp) elCopyCmp.onclick = null;
+    if (elCopyCmp) {
+      elCopyCmp.onclick = null;
+      elCopyCmp.hidden = false;
+    }
+    if (elCopyRes) {
+      elCopyRes.onclick = null;
+      elCopyRes.hidden = true;
+    }
+    if (elShareLead) elShareLead.textContent = "Share with a friend!";
     if (elStatus) elStatus.textContent = "";
     syncTileLetters();
   }
@@ -841,12 +882,15 @@
   function finishRoundShareUI(finalScore, finalWordCount) {
     const elAct = $("wh-summary-actions");
     const elCopyCmp = $("wh-copy-compare");
+    const elCopyRes = $("wh-copy-results");
+    const elShareLead = $("wh-share-lead");
     const elStatus = $("wh-summary-status");
 
+    let compareDecoded = null;
     if (urlBaseSeed && rivalEncodedFromUrl) {
-      const other = decodeStatsPayload(urlBaseSeed, rivalEncodedFromUrl);
-      if (other) {
-        renderCompareDual(other, finalScore, finalWordCount);
+      compareDecoded = decodeStatsPayload(urlBaseSeed, rivalEncodedFromUrl);
+      if (compareDecoded) {
+        renderCompareDual(compareDecoded, finalScore, finalWordCount);
       } else {
         hideCompareDualPanel();
       }
@@ -854,9 +898,42 @@
       hideCompareDualPanel();
     }
 
-    if (elAct && urlBaseSeed) {
-      elAct.hidden = false;
+    const onCompareResultsScreen = compareDecoded != null;
+
+    if (!elAct || !urlBaseSeed) {
+      if (elAct) elAct.hidden = true;
+      return;
+    }
+
+    elAct.hidden = false;
+
+    if (onCompareResultsScreen) {
+      if (elShareLead) elShareLead.textContent = "Tell your friend who won:";
       if (elCopyCmp) {
+        elCopyCmp.hidden = true;
+        elCopyCmp.onclick = null;
+      }
+      if (elCopyRes) {
+        elCopyRes.hidden = false;
+        elCopyRes.onclick = async () => {
+          const text = formatCompareResultsPlainText(compareDecoded, finalScore, finalWordCount);
+          const ok = await copyTextRobust(text);
+          if (ok) {
+            if (elStatus) elStatus.textContent = "Results copied.";
+            else setMsg("Results copied.");
+          } else {
+            window.prompt("Copy results:", text);
+          }
+        };
+      }
+    } else {
+      if (elShareLead) elShareLead.textContent = "Share with a friend!";
+      if (elCopyRes) {
+        elCopyRes.hidden = true;
+        elCopyRes.onclick = null;
+      }
+      if (elCopyCmp) {
+        elCopyCmp.hidden = false;
         elCopyCmp.onclick = async () => {
           const enc = encodeStatsPayload(urlBaseSeed, finalScore, finalWordCount, foundScores);
           const u = new URL(location.href);
@@ -872,8 +949,6 @@
           }
         };
       }
-    } else if (elAct) {
-      elAct.hidden = true;
     }
   }
 

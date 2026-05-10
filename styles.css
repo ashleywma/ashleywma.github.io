@@ -942,6 +942,10 @@ a:hover {
   color: var(--text);
 }
 
+.wordhunt__summary-lead:empty {
+  display: none;
+}
+
 .wordhunt__summary-list {
   margin: 0;
   padding: 0;
@@ -1068,6 +1072,10 @@ a:hover {
   flex-direction: column;
   align-items: flex-start;
   gap: 0.45rem;
+}
+
+.wordhunt__summary-actions[hidden] {
+  display: none !important;
 }
 
 .wordhunt__share-lead {

@@ -113,16 +113,16 @@
                     <div class="wordhunt__compare-dual" id="wh-compare-dual" hidden>
                       <p class="wordhunt__compare-winner" id="wh-compare-winner"></p>
                       <div class="wordhunt__compare-columns">
-                        <section class="wordhunt__compare-col" aria-label="Friend summary">
-                          <h4 class="wordhunt__compare-col-title">Friend</h4>
+                        <section class="wordhunt__compare-col" aria-label="Player 1 summary">
+                          <h4 class="wordhunt__compare-col-title">Player 1</h4>
                           <p class="wordhunt__compare-col-lead" id="wh-compare-friend-lead"></p>
                           <ul class="wordhunt__summary-list wordhunt__compare-col-list" id="wh-compare-friend-list"></ul>
                           <button type="button" class="wordhunt__expand" id="wh-compare-friend-expand" hidden>
                             Show more words
                           </button>
                         </section>
-                        <section class="wordhunt__compare-col" aria-label="Your summary">
-                          <h4 class="wordhunt__compare-col-title">You</h4>
+                        <section class="wordhunt__compare-col" aria-label="Player 2 summary">
+                          <h4 class="wordhunt__compare-col-title">Player 2</h4>
                           <p class="wordhunt__compare-col-lead" id="wh-compare-you-lead"></p>
                           <ul class="wordhunt__summary-list wordhunt__compare-col-list" id="wh-compare-you-list"></ul>
                           <button type="button" class="wordhunt__expand" id="wh-compare-you-expand" hidden>
@@ -132,14 +132,18 @@
                       </div>
                     </div>
                     <div class="wordhunt__summary-actions" id="wh-summary-actions" hidden>
-                      <p class="wordhunt__share-lead">Share with a friend!</p>
+                      <p class="wordhunt__share-lead" id="wh-share-lead">Share with a friend!</p>
                       <div class="wordhunt__summary-share-row">
                         <button type="button" class="wordhunt__btn wordhunt__btn--compact" id="wh-copy-compare">
                           copy compare link
                         </button>
+                        <button type="button" class="wordhunt__btn wordhunt__btn--compact" id="wh-copy-results" hidden>
+                          copy results
+                        </button>
                       </div>
                       <p class="wordhunt__share-status muted" id="wh-summary-status" aria-live="polite"></p>
-                      <p class="wordhunt__compare-hint muted">
+                      <p class="wordhunt__compare-hint muted" id="wh-share-hint">
+                       
                       </p>
                     </div>
                   </div>
