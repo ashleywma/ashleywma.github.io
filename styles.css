@@ -771,22 +771,26 @@ a:hover {
   border: 0;
 }
 
-/* Teal links only inside long-form research write-ups (see .doc--writeup on article) */
-.doc--writeup a {
+/* Teal links in long-form research write-ups and personal pages (see .doc--writeup / .doc--personal) */
+.doc--writeup a,
+.doc--personal a {
   color: var(--writeup-link);
   text-decoration-color: color-mix(in srgb, var(--writeup-link) 45%, transparent);
 }
 
-.doc--writeup a:hover {
+.doc--writeup a:hover,
+.doc--personal a:hover {
   color: var(--writeup-link-hover);
 }
 
-/* API / identifier spans: keep off the writeup teal so they read as code, not links */
-.doc--writeup .key {
+/* API / identifier spans: keep off the teal link color so they read as code, not links */
+.doc--writeup .key,
+.doc--personal .key {
   color: var(--keyword);
 }
 
-.doc--writeup .value {
+.doc--writeup .value,
+.doc--personal .value {
   color: var(--accent);
 }
 

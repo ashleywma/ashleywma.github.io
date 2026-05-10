@@ -156,8 +156,8 @@
     rows.push(topFolder("employment", []));
     rows.push(
       topFolder("personal", [
-        linkRow("/personal.html", "overview.html", leaf === "personal.html"),
         linkRow("/personal/artwork.html", "artwork.html", leaf === "artwork.html"),
+        linkRow("/personal/dance.html", "dance.html", leaf === "dance.html"),
       ])
     );
 
@@ -343,6 +343,8 @@
       personal: "/personal.html",
       artwork: "/personal/artwork.html",
       art: "/personal/artwork.html",
+      dance: "/personal/dance.html",
+      rxn: "/personal/dance.html",
       eecs281: "/education/eecs281.html",
       rob101: "/education/rob101.html",
       graph: "/projects/eecs281-graph-demo.html",
@@ -363,6 +365,7 @@
       "employment/overview": "/employment.html",
       "personal/overview": "/personal.html",
       "personal/artwork": "/personal/artwork.html",
+      "personal/dance": "/personal/dance.html",
       "education/eecs281": "/education/eecs281.html",
       "education/rob101": "/education/rob101.html",
       "/index.html": "/index.html",
@@ -373,6 +376,7 @@
       "/employment.html": "/employment.html",
       "/personal.html": "/personal.html",
       "/personal/artwork.html": "/personal/artwork.html",
+      "/personal/dance.html": "/personal/dance.html",
       "/education/eecs281.html": "/education/eecs281.html",
       "/education/rob101.html": "/education/rob101.html",
       "/education/overview.html": "/education.html",
@@ -430,8 +434,8 @@
       ],
       employment: [{ type: "file", name: "overview.html" }],
       personal: [
-        { type: "file", name: "overview.html" },
         { type: "file", name: "artwork.html" },
+        { type: "file", name: "dance.html" },
       ],
     };
 
