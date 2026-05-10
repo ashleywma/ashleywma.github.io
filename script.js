@@ -170,6 +170,7 @@
       topFolder("personal", [
         linkRow("/personal/artwork.html", "artwork.html", leaf === "artwork.html"),
         linkRow("/personal/dance.html", "dance.html", leaf === "dance.html"),
+        linkRow("/personal/games.html", "games.html", leaf === "games.html"),
       ])
     );
 
@@ -360,6 +361,9 @@
       art: "/personal/artwork.html",
       dance: "/personal/dance.html",
       rxn: "/personal/dance.html",
+      games: "/personal/games.html",
+      wordhunt: "/personal/games.html",
+      "word hunt": "/personal/games.html",
       eecs281: "/classes/eecs281.html",
       rob101: "/classes/rob101.html",
       graph: "/projects/eecs281-graph-demo.html",
@@ -386,6 +390,7 @@
       "personal/overview": "/personal.html",
       "personal/artwork": "/personal/artwork.html",
       "personal/dance": "/personal/dance.html",
+      "personal/games": "/personal/games.html",
       "education/eecs281": "/classes/eecs281.html",
       "education/rob101": "/classes/rob101.html",
       "classes/eecs281": "/classes/eecs281.html",
@@ -403,6 +408,7 @@
       "/personal.html": "/personal.html",
       "/personal/artwork.html": "/personal/artwork.html",
       "/personal/dance.html": "/personal/dance.html",
+      "/personal/games.html": "/personal/games.html",
       "/education/eecs281.html": "/classes/eecs281.html",
       "/education/rob101.html": "/classes/rob101.html",
       "/education/overview.html": "/classes.html",
@@ -466,6 +472,7 @@
       personal: [
         { type: "file", name: "artwork.html" },
         { type: "file", name: "dance.html" },
+        { type: "file", name: "games.html" },
       ],
     };
 
