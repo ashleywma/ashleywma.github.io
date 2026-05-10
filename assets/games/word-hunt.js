@@ -451,18 +451,18 @@
     lastPointerClient = null;
     path = [];
     used.clear();
-    for (const tile of tiles) tile.classList.remove("is-active", "is-used", "is-dict-word");
+    for (const tile of tiles) tile.classList.remove("is-active", "is-used", "is-dict-word", "is-dict-dup");
     setCurrent("");
     updateTrace();
   }
 
-  /** While dragging, mark path tiles green when the path is a dictionary word. */
+  /** While dragging: green if dict word new this round, yellow if already found. */
   function updatePathDictHint() {
-    const hint = "is-dict-word";
-    for (const tile of tiles) tile.classList.remove(hint);
+    for (const tile of tiles) tile.classList.remove("is-dict-word", "is-dict-dup");
     if (!DICT || path.length === 0) return;
     const w = pathToWord().toLowerCase();
     if (w.length < MIN_LEN || !DICT.has(w)) return;
+    const hint = foundScores.has(w) ? "is-dict-dup" : "is-dict-word";
     for (const idx of path) tiles[idx].classList.add(hint);
   }
 

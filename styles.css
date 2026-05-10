@@ -16,6 +16,7 @@
   --prompt-fg: #0a6b52;
   --writeup-link: #0b7f7c;
   --writeup-link-hover: #066662;
+  --wordhunt-dup: #9a7200;
 }
 
 [data-theme="dark"] {
@@ -34,6 +35,7 @@
   --prompt-fg: #7ee8c0;
   --writeup-link: #5ed4c9;
   --writeup-link-hover: #8beadf;
+  --wordhunt-dup: #e8c547;
 }
 
 *,
@@ -780,6 +782,15 @@ a:hover {
 
 .wordhunt__tile.is-dict-word.is-used {
   background: color-mix(in srgb, var(--string) 24%, var(--bg-elevated));
+}
+
+.wordhunt__tile.is-dict-dup {
+  border-color: var(--wordhunt-dup);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--wordhunt-dup) 42%, transparent);
+}
+
+.wordhunt__tile.is-dict-dup.is-used {
+  background: color-mix(in srgb, var(--wordhunt-dup) 26%, var(--bg-elevated));
 }
 
 .wordhunt__current {
