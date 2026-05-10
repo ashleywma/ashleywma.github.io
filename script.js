@@ -3,20 +3,25 @@
   const root = document.documentElement;
   const toggle = document.getElementById("theme-toggle");
 
+  function normalizeTheme(theme) {
+    if (theme === "midnight") return "dark";
+    return theme === "dark" ? "dark" : "light";
+  }
+
   function applyTheme(theme) {
-    const next = theme === "midnight" ? "midnight" : "light";
+    const next = normalizeTheme(theme);
     root.dataset.theme = next;
     if (toggle) {
-      const isMidnight = next === "midnight";
-      toggle.setAttribute("aria-pressed", String(isMidnight));
+      const isDark = next === "dark";
+      toggle.setAttribute("aria-pressed", String(isDark));
       toggle.setAttribute(
         "aria-label",
-        isMidnight ? "Switch to light theme" : "Switch to midnight theme"
+        isDark ? "switch to light mode" : "switch to dark mode"
       );
-      toggle.title = isMidnight ? "Light mode" : "Midnight mode";
+      toggle.title = isDark ? "light mode" : "dark mode";
       const label = toggle.querySelector(".theme-toggle__label");
       if (label) {
-        label.textContent = isMidnight ? "light" : "midnight";
+        label.textContent = isDark ? "light mode" : "dark mode";
       }
     }
     try {
@@ -33,8 +38,8 @@
     } catch (_) {
       /* ignore */
     }
-    if (stored === "midnight" || stored === "light") {
-      applyTheme(stored);
+    if (stored === "dark" || stored === "light" || stored === "midnight") {
+      applyTheme(stored === "midnight" ? "dark" : stored);
     } else if (stored === "lavender") {
       applyTheme("light");
     } else {
@@ -46,8 +51,8 @@
 
   if (toggle) {
     toggle.addEventListener("click", function () {
-      const current = root.dataset.theme === "midnight" ? "midnight" : "light";
-      applyTheme(current === "midnight" ? "light" : "midnight");
+      const current = normalizeTheme(root.dataset.theme || "light");
+      applyTheme(current === "dark" ? "light" : "dark");
     });
   }
 

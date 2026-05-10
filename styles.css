@@ -1,4 +1,4 @@
-/* Theme: light (default) + midnight purple (toggle) */
+/* Theme: light (default) + dark purple (toggle) */
 
 [data-theme="light"] {
   color-scheme: light;
@@ -16,7 +16,7 @@
   --prompt-fg: #0a6b52;
 }
 
-[data-theme="midnight"] {
+[data-theme="dark"] {
   color-scheme: dark;
   --bg: #0c0618;
   --bg-elevated: #140a24;
