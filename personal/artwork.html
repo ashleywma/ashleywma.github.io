@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Personal artwork portfolio." />
+    <title>personal // artwork</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">skip to content</a>
+
+    <div class="app-shell app-shell--sidebar-collapsed">
+      <aside class="sidebar" id="sidebar-panel" aria-label="Explorer">
+        <div id="sidebar-root"></div>
+      </aside>
+
+      <div class="app-column">
+        <header class="site-header">
+          <div class="site-header__inner">
+            <div class="site-header__start">
+              <a class="logo" href="/index.html">~/site</a>
+            </div>
+            <div class="site-header__actions">
+              <button
+                type="button"
+                class="theme-toggle"
+                id="theme-toggle"
+                aria-label="switch to dark mode"
+                aria-pressed="false"
+                title="dark mode"
+              >
+                <span class="theme-toggle__icon" aria-hidden="true">◐</span>
+                <span class="theme-toggle__label">dark mode</span>
+              </button>
+            </div>
+          </div>
+        </header>
+
+        <main id="main">
+          <article class="section wrap doc doc--personal">
+            <p class="muted comment">// personal / artwork.html</p>
+            <p class="muted"><a href="/personal.html">← personal</a></p>
+            <h1><span class="prompt" aria-hidden="true"></span>Artwork portfolio</h1>
+            <p class="muted art-portfolio__hint">
+              Thumbnails are cropped. Click a tile (image or caption) to open the full file in a new tab.
+            </p>
+
+            <section class="art-portfolio" aria-label="Artwork gallery">
+              <div class="art-portfolio__grid">
+                <figure class="art-piece">
+                  <a
+                    class="art-piece__link"
+                    href="/assets/art/colored_pencil.JPG"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="Open full image"
+                    aria-label="Open full image: colored pencil"
+                  >
+                    <div class="art-piece__frame">
+                      <img
+                        src="/assets/art/colored_pencil.JPG"
+                        alt=""
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </div>
+                    <figcaption class="art-piece__cap">Colored pencil</figcaption>
+                  </a>
+                </figure>
+                <figure class="art-piece">
+                  <a
+                    class="art-piece__link"
+                    href="/assets/art/colored_pencil_on_black_paper.JPG"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="Open full image"
+                    aria-label="Open full image: colored pencil on black paper"
+                  >
+                    <div class="art-piece__frame">
+                      <img
+                        src="/assets/art/colored_pencil_on_black_paper.JPG"
+                        alt=""
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </div>
+                    <figcaption class="art-piece__cap">Colored pencil on black paper</figcaption>
+                  </a>
+                </figure>
+                <figure class="art-piece">
+                  <a
+                    class="art-piece__link"
+                    href="/assets/art/watercolor_on_paper.jpeg"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="Open full image"
+                    aria-label="Open full image: watercolor on paper"
+                  >
+                    <div class="art-piece__frame">
+                      <img
+                        src="/assets/art/watercolor_on_paper.jpeg"
+                        alt=""
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </div>
+                    <figcaption class="art-piece__cap">Watercolor on paper</figcaption>
+                  </a>
+                </figure>
+                <figure class="art-piece">
+                  <a
+                    class="art-piece__link"
+                    href="/assets/art/watercolor_still_life.JPG"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="Open full image"
+                    aria-label="Open full image: watercolor still life"
+                  >
+                    <div class="art-piece__frame">
+                      <img
+                        src="/assets/art/watercolor_still_life.JPG"
+                        alt=""
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </div>
+                    <figcaption class="art-piece__cap">Watercolor still life</figcaption>
+                  </a>
+                </figure>
+                <figure class="art-piece">
+                  <a
+                    class="art-piece__link"
+                    href="/assets/art/acrylic_on_canvas.jpeg"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="Open full image"
+                    aria-label="Open full image: acrylic on canvas"
+                  >
+                    <div class="art-piece__frame">
+                      <img
+                        src="/assets/art/acrylic_on_canvas.jpeg"
+                        alt=""
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </div>
+                    <figcaption class="art-piece__cap">Acrylic on canvas</figcaption>
+                  </a>
+                </figure>
+                <figure class="art-piece">
+                  <a
+                    class="art-piece__link"
+                    href="/assets/art/acrylic_on_black_canvas.jpeg"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="Open full image"
+                    aria-label="Open full image: acrylic on black canvas"
+                  >
+                    <div class="art-piece__frame">
+                      <img
+                        src="/assets/art/acrylic_on_black_canvas.jpeg"
+                        alt=""
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </div>
+                    <figcaption class="art-piece__cap">Acrylic on black canvas</figcaption>
+                  </a>
+                </figure>
+                <figure class="art-piece">
+                  <a
+                    class="art-piece__link"
+                    href="/assets/art/acrylic.jpeg"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="Open full image"
+                    aria-label="Open full image: acrylic"
+                  >
+                    <div class="art-piece__frame">
+                      <img
+                        src="/assets/art/acrylic.jpeg"
+                        alt=""
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </div>
+                    <figcaption class="art-piece__cap">Acrylic</figcaption>
+                  </a>
+                </figure>
+                <figure class="art-piece">
+                  <a
+                    class="art-piece__link"
+                    href="/assets/art/acrylic_2.jpg"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="Open full image"
+                    aria-label="Open full image: acrylic"
+                  >
+                    <div class="art-piece__frame">
+                      <img
+                        src="/assets/art/acrylic_2.jpg"
+                        alt=""
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </div>
+                    <figcaption class="art-piece__cap">Acrylic</figcaption>
+                  </a>
+                </figure>
+              </div>
+            </section>
+          </article>
+        </main>
+
+        <footer class="site-footer">
+          <div class="wrap site-footer__inner">
+            <p class="muted">
+              <span class="prompt" aria-hidden="true"></span>© <span id="year"></span> - plain HTML/CSS/JS
+            </p>
+          </div>
+        </footer>
+      </div>
+    </div>
+
+    <script src="/script.js"></script>
+  </body>
+</html>

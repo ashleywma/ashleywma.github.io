@@ -154,7 +154,12 @@
       ])
     );
     rows.push(topFolder("employment", []));
-    rows.push(topFolder("personal", []));
+    rows.push(
+      topFolder("personal", [
+        linkRow("/personal.html", "overview.html", leaf === "personal.html"),
+        linkRow("/personal/artwork.html", "artwork.html", leaf === "artwork.html"),
+      ])
+    );
 
     mount.innerHTML =
       '<p class="sidebar__label">explorer</p>' +
@@ -336,6 +341,8 @@
       employment: "/employment.html",
       work: "/employment.html",
       personal: "/personal.html",
+      artwork: "/personal/artwork.html",
+      art: "/personal/artwork.html",
       eecs281: "/education/eecs281.html",
       rob101: "/education/rob101.html",
       graph: "/projects/eecs281-graph-demo.html",
@@ -355,6 +362,7 @@
       "research/overview": "/research.html",
       "employment/overview": "/employment.html",
       "personal/overview": "/personal.html",
+      "personal/artwork": "/personal/artwork.html",
       "education/eecs281": "/education/eecs281.html",
       "education/rob101": "/education/rob101.html",
       "/index.html": "/index.html",
@@ -364,6 +372,7 @@
       "/research/iral-lab.html": "/research/iral-lab.html",
       "/employment.html": "/employment.html",
       "/personal.html": "/personal.html",
+      "/personal/artwork.html": "/personal/artwork.html",
       "/education/eecs281.html": "/education/eecs281.html",
       "/education/rob101.html": "/education/rob101.html",
       "/education/overview.html": "/education.html",
@@ -420,7 +429,10 @@
         { type: "file", name: "iral-lab.html" },
       ],
       employment: [{ type: "file", name: "overview.html" }],
-      personal: [{ type: "file", name: "overview.html" }],
+      personal: [
+        { type: "file", name: "overview.html" },
+        { type: "file", name: "artwork.html" },
+      ],
     };
 
     function cwdKey() {

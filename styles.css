@@ -616,6 +616,99 @@ a:hover {
   max-width: 65ch;
 }
 
+/* Personal page: allow a wider artwork grid than default doc measure */
+.doc.doc--personal {
+  max-width: min(72rem, 100%);
+}
+
+.art-portfolio {
+  margin-top: 0.5rem;
+}
+
+.art-portfolio__lead {
+  margin: 0 0 1.25rem;
+  max-width: 58ch;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+.art-portfolio__grid {
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: repeat(auto-fill, minmax(13.5rem, 1fr));
+}
+
+.art-piece {
+  margin: 0;
+}
+
+.art-piece__link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  border-radius: 8px;
+  outline-offset: 3px;
+  cursor: zoom-in;
+}
+
+.art-piece__link:hover .art-piece__frame {
+  border-color: color-mix(in srgb, var(--keyword) 35%, var(--border));
+}
+
+.art-piece__link:focus-visible {
+  outline: 2px solid var(--keyword);
+}
+
+.art-portfolio__hint {
+  margin: 0 0 1rem;
+  max-width: 52ch;
+  font-size: 0.8125rem;
+}
+
+.art-piece__link .art-piece__cap {
+  margin-top: 0.45rem;
+  text-align: center;
+  text-decoration: none;
+}
+
+.art-piece__frame {
+  aspect-ratio: 3 / 4;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  background: var(--bg-elevated);
+}
+
+.art-piece__frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.art-piece__frame--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 11rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  color: var(--comment);
+  border-style: dashed;
+}
+
+.art-piece__cap {
+  margin: 0.55rem 0 0;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--text-muted);
+}
+
+.art-piece__cap strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
 .doc h1 {
   font-size: 1.2rem;
   font-weight: 600;
