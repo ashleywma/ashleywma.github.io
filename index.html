@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Personal website" />
+    <title>ashley ma // home</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">skip to content</a>
+
+    <div class="app-shell app-shell--sidebar-collapsed">
+      <aside class="sidebar" id="sidebar-panel" aria-label="Explorer">
+        <div id="sidebar-root"></div>
+      </aside>
+
+      <div class="app-column">
+        <header class="site-header">
+          <div class="site-header__inner">
+            <div class="site-header__start">
+              <a class="logo" href="/index.html">~/site</a>
+            </div>
+            <div class="site-header__actions">
+              <button
+                type="button"
+                class="theme-toggle"
+                id="theme-toggle"
+                aria-label="Switch to midnight theme"
+                aria-pressed="false"
+                title="Midnight mode"
+              >
+                <span class="theme-toggle__icon" aria-hidden="true">◐</span>
+                <span class="theme-toggle__label">midnight</span>
+              </button>
+            </div>
+          </div>
+        </header>
+
+        <main id="main">
+          <section class="hero hero--compact section">
+            <div class="wrap">
+              <p class="muted comment">// welcome</p>
+              <h1 class="hero__title">
+                <span class="prompt" aria-hidden="true"></span>
+                <span class="hero__name"><span class="accent">Ashley Ma</span>.</span>
+              </h1>
+              <p class="hero__lead">
+                Junior at the University of Michigan — Computer Science and Robotics Engineering. Open
+                the explorer from the <strong>file icon in the top left</strong>, or use the terminal
+                (<strong>Ctrl+`</strong>) to jump to pages.
+              </p>
+              <ul class="hero__meta">
+                <li><span class="key">employment</span>: <span class="value">Software Engineer @BWL</span></li>
+                <li><span class="key">location</span>: <span class="value">Ann Arbor, Michigan</span></li>
+              </ul>
+            </div>
+          </section>
+
+          <section id="about" class="section section--alt">
+            <div class="wrap">
+              <h2 class="section__title"><span class="prompt" aria-hidden="true"></span>about</h2>
+              <p class="section__body">
+                I am interested in building projects that are technically strong and useful to people. Currently
+                learning software engineering, systems design, and backend development through
+                coursework, research, and work.
+              </p>
+            </div>
+          </section>
+
+          <section id="contact" class="section">
+            <div class="wrap">
+              <h2 class="section__title"><span class="prompt" aria-hidden="true"></span>contact</h2>
+              <p class="section__body">
+                Reach me at <a href="mailto:awma@umich.edu">awma@umich.edu</a> or find me on
+                <a href="https://github.com/ashleywma" rel="me">GitHub</a> / <a href="https://www.linkedin.com/in/ashleywma/" rel="me">LinkedIn</a>.
+              </p>
+            </div>
+          </section>
+        </main>
+
+        <footer class="site-footer">
+          <div class="wrap site-footer__inner">
+            <p class="muted">
+              <span class="prompt" aria-hidden="true"></span>© <span id="year"></span> — plain HTML/CSS/JS
+            </p>
+          </div>
+        </footer>
+      </div>
+    </div>
+
+    <script src="/script.js"></script>
+  </body>
+</html>
