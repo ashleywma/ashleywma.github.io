@@ -25,10 +25,169 @@
   const elSummaryList = $("wh-summary-list");
   const elSummaryExpand = $("wh-summary-expand");
   const elFound = $("wh-found");
+  const elSeedLine = $("wh-seed-line");
+  const elSeedInput = $("wh-seed-input");
+  const elSeedApply = $("wh-seed-apply");
+  const elCopySeed = $("wh-copy-seed");
+  const elCopyLink = $("wh-copy-link");
 
   if (!elBoard || !elBoardWrap || !elTrace) return;
 
   const SUMMARY_MAX_WORDS = 15;
+  const SEED_MAX_LEN = 80;
+
+  /** @type {string | null} */
+  let urlBaseSeed = null;
+
+  /** Older links used `auto-` + hex; strip so the board matches plain hex seeds. */
+  function stripLegacyAutoPrefix(s) {
+    let t = String(s).trim();
+    if (t.startsWith("auto-")) t = t.slice(5).trim();
+    return t.slice(0, SEED_MAX_LEN);
+  }
+
+  function initSeedFromUrl() {
+    const params = new URLSearchParams(location.search);
+    const raw = params.get("seed");
+    if (raw != null && raw !== "") {
+      const t = stripLegacyAutoPrefix(raw.trim());
+      urlBaseSeed = t === "" ? null : t;
+    } else {
+      urlBaseSeed = null;
+    }
+
+    if (urlBaseSeed != null) {
+      syncSeededUrl();
+    }
+  }
+
+  /** 16 hex chars — no prefix, easy to copy/paste. */
+  function generateAutoSeedString() {
+    try {
+      if (typeof crypto !== "undefined" && crypto.getRandomValues) {
+        const buf = new Uint8Array(8);
+        crypto.getRandomValues(buf);
+        let hex = "";
+        for (let i = 0; i < buf.length; i++) hex += buf[i].toString(16).padStart(2, "0");
+        return hex;
+      }
+    } catch (_) {
+      // fall through
+    }
+    const t = Date.now() >>> 0;
+    const r = (Math.random() * 0xffffffff) >>> 0;
+    return (t.toString(16) + r.toString(16)).replace(/^0+/, "").padStart(16, "0").slice(-16);
+  }
+
+  /** If the URL has no seed, create one and put it in the address bar (shareable). */
+  function ensureAutoSeed() {
+    if (urlBaseSeed != null) return;
+    urlBaseSeed = generateAutoSeedString();
+    syncSeededUrl();
+  }
+
+  async function copyTextRobust(text) {
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+        return true;
+      }
+    } catch (_) {
+      // fall through to execCommand
+    }
+    try {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.setAttribute("readonly", "");
+      ta.style.cssText = "position:fixed;left:-9999px;top:0;opacity:0";
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      const ok = document.execCommand("copy");
+      document.body.removeChild(ta);
+      return ok;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function syncSeededUrl() {
+    if (urlBaseSeed == null) return;
+    const u = new URL(location.href);
+    u.searchParams.set("seed", urlBaseSeed);
+    u.searchParams.delete("board");
+    history.replaceState(null, "", u.pathname + u.search + u.hash);
+  }
+
+  function playUrlString() {
+    const u = new URL(location.href);
+    if (urlBaseSeed != null) {
+      u.searchParams.set("seed", urlBaseSeed);
+      u.searchParams.delete("board");
+    }
+    return u.toString();
+  }
+
+  function stringToSeed(str) {
+    let h = 2166136261 >>> 0;
+    for (let i = 0; i < str.length; i++) {
+      h ^= str.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    return h >>> 0;
+  }
+
+  /** @param {number} seedUint32 */
+  function mulberry32(seedUint32) {
+    let a = seedUint32 >>> 0;
+    return function () {
+      let t = (a += 0x6d2b79f5);
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  function createRng() {
+    if (urlBaseSeed != null) {
+      return mulberry32(stringToSeed(urlBaseSeed));
+    }
+    return () => Math.random();
+  }
+
+  function setSeedEditingEnabled(enabled) {
+    if (elSeedInput) elSeedInput.disabled = !enabled;
+    if (elSeedApply) elSeedApply.disabled = !enabled;
+  }
+
+  function updateSeedLine() {
+    if (!elSeedLine || !elSeedInput) return;
+    if (urlBaseSeed == null) {
+      elSeedLine.hidden = true;
+      elSeedInput.value = "";
+      return;
+    }
+    elSeedLine.hidden = false;
+    elSeedInput.value = urlBaseSeed;
+  }
+
+  function applySeedFromInput() {
+    if (running) {
+      setMsg("Finish the round before changing seed.");
+      return;
+    }
+    let raw = elSeedInput ? stripLegacyAutoPrefix(elSeedInput.value) : "";
+    if (raw === "") {
+      raw = generateAutoSeedString();
+    }
+    urlBaseSeed = raw;
+    syncSeededUrl();
+    board = generateBoard();
+    renderBoard();
+    clearSelection();
+    updateSeedLine();
+    setMsg("Seed updated. Hit start when ready.");
+  }
 
   /** @type {Set<string> | null} */
   let DICT = null;
@@ -131,8 +290,9 @@
   ];
   const LETTER_TOTAL = LETTER_BAG.reduce((acc, [, w]) => acc + w, 0);
 
-  function randomLetter() {
-    let roll = Math.random() * LETTER_TOTAL;
+  /** @param {() => number} rng returns uniform [0, 1) */
+  function randomLetter(rng) {
+    let roll = rng() * LETTER_TOTAL;
     for (const [ch, w] of LETTER_BAG) {
       roll -= w;
       if (roll <= 0) return ch;
@@ -141,8 +301,9 @@
   }
 
   function generateBoard() {
+    const rng = createRng();
     const b = [];
-    for (let i = 0; i < TILE_COUNT; i++) b.push(randomLetter());
+    for (let i = 0; i < TILE_COUNT; i++) b.push(randomLetter(rng));
     return b;
   }
 
@@ -374,11 +535,13 @@
     elStart.textContent = "start";
     setMsg("Time. Hit start to play again.");
     clearSelection();
+    setSeedEditingEnabled(true);
     showRoundSummary();
   }
 
   function startRound() {
     if (!DICT) return;
+    setSeedEditingEnabled(false);
     running = true;
     remaining = ROUND_SECONDS;
     score = 0;
@@ -399,13 +562,19 @@
   }
 
   function newBoard() {
+    urlBaseSeed = generateAutoSeedString();
+    syncSeededUrl();
     board = generateBoard();
     renderBoard();
     clearSelection();
+    updateSeedLine();
     if (!running) setMsg("Ready. Hit start.");
   }
 
   function bindDrag() {
+    elBoardWrap.addEventListener("selectstart", (e) => e.preventDefault());
+    elBoardWrap.addEventListener("dragstart", (e) => e.preventDefault());
+
     elBoardWrap.addEventListener(
       "pointerdown",
       (e) => {
@@ -505,8 +674,11 @@
   }
 
   function boot() {
+    initSeedFromUrl();
+    ensureAutoSeed();
     board = generateBoard();
     renderBoard();
+    updateSeedLine();
     bindDrag();
     bindBoardEvents();
     updateStats();
@@ -519,6 +691,37 @@
     elNew.addEventListener("click", () => {
       newBoard();
     });
+
+    if (elSeedApply) {
+      elSeedApply.addEventListener("click", () => applySeedFromInput());
+    }
+    if (elSeedInput) {
+      elSeedInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          applySeedFromInput();
+        }
+      });
+    }
+
+    if (elCopySeed) {
+      elCopySeed.addEventListener("click", async () => {
+        const text = urlBaseSeed ?? "";
+        if (!text) return;
+        const ok = await copyTextRobust(text);
+        if (ok) setMsg("Seed copied.");
+        else window.prompt("Copy this seed (Ctrl/Cmd+C):", text);
+      });
+    }
+
+    if (elCopyLink) {
+      elCopyLink.addEventListener("click", async () => {
+        const url = playUrlString();
+        const ok = await copyTextRobust(url);
+        if (ok) setMsg("Link copied.");
+        else window.prompt("Copy this link (Ctrl/Cmd+C):", url);
+      });
+    }
   }
 
   boot();
@@ -527,7 +730,7 @@
     .then((set) => {
       DICT = set;
       enableUI();
-      setMsg("Ready. Hit start.");
+      setMsg("Ready. Hit start. Copy seed or copy link to share.");
     })
     .catch((err) => {
       console.error(err);

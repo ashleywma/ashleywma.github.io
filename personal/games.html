@@ -51,7 +51,8 @@
 
             <h2><span class="prompt" aria-hidden="true"></span>Word Hunt (GamePigeon)</h2>
             <p>
-              I love word hunt :D
+              share <strong>copy seed</strong> or
+              <strong>copy link</strong> so a friend gets the same board. 
             </p>
 
             <section class="wordhunt" aria-label="Word Hunt game">
@@ -64,6 +65,28 @@
                   <button class="wordhunt__btn" type="button" id="wh-new" disabled>new board</button>
                 </div>
               </div>
+
+              <p class="wordhunt__seed-line" id="wh-seed-line" hidden>
+                <span class="key">seed</span>
+                <input
+                  type="text"
+                  class="wordhunt__seed-input"
+                  id="wh-seed-input"
+                  maxlength="80"
+                  autocomplete="off"
+                  spellcheck="false"
+                  aria-label="Board seed — paste a friend’s or edit your own"
+                />
+                <button type="button" class="wordhunt__btn wordhunt__btn--compact" id="wh-seed-apply">
+                  apply
+                </button>
+                <button type="button" class="wordhunt__btn wordhunt__btn--compact" id="wh-copy-seed">
+                  copy seed
+                </button>
+                <button type="button" class="wordhunt__btn wordhunt__btn--compact" id="wh-copy-link">
+                  copy link
+                </button>
+              </p>
 
               <div class="wordhunt__layout">
                 <div class="wordhunt__main-col">
