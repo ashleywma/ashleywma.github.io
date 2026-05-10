@@ -147,7 +147,11 @@
     );
 
     rows.push(topFolder("education", []));
-    rows.push(topFolder("research", []));
+    rows.push(
+      topFolder("research", [
+        linkRow("/research/sam-lab.html", "sam-lab.html", leaf === "sam-lab.html"),
+      ])
+    );
     rows.push(topFolder("employment", []));
     rows.push(topFolder("personal", []));
 
@@ -319,6 +323,9 @@
       education: "/education.html",
       edu: "/education.html",
       research: "/research.html",
+      sam: "/research/sam-lab.html",
+      samlab: "/research/sam-lab.html",
+      "sam-lab": "/research/sam-lab.html",
       employment: "/employment.html",
       work: "/employment.html",
       personal: "/personal.html",
@@ -336,7 +343,8 @@
       "projects/interface": "/projects/research-ui-lab.html",
       "projects/bwl": "/projects/bwl-dashboard.html",
       "education/overview": "/education.html",
-      "research/overview": "/research.html",
+      "research/sam-lab": "/research/sam-lab.html",
+      "research/overview": "/research/sam-lab.html",
       "employment/overview": "/employment.html",
       "personal/overview": "/personal.html",
       "education/eecs281": "/education/eecs281.html",
@@ -344,10 +352,15 @@
       "/index.html": "/index.html",
       "/education.html": "/education.html",
       "/research.html": "/research.html",
+      "/research/sam-lab.html": "/research/sam-lab.html",
       "/employment.html": "/employment.html",
       "/personal.html": "/personal.html",
       "/education/eecs281.html": "/education/eecs281.html",
       "/education/rob101.html": "/education/rob101.html",
+      "/education/overview.html": "/education.html",
+      "/research/overview.html": "/research.html",
+      "/employment/overview.html": "/employment.html",
+      "/personal/overview.html": "/personal.html",
       "/projects/eecs281-graph-demo.html": "/projects/eecs281-graph-demo.html",
       "/projects/rob101-bot-race.html": "/projects/rob101-bot-race.html",
       "/projects/research-ui-lab.html": "/projects/research-ui-lab.html",
@@ -370,6 +383,36 @@
     var cwdSegments = [];
     var termPx = 0;
 
+    /** Logical directories you may cd into (matches site layout; no projects/ at repo root). */
+    var CD_VALID_TOP = {
+      education: true,
+      research: true,
+      employment: true,
+      personal: true,
+    };
+
+    /** Virtual listings for `ls` (keys match cwdKey()). */
+    var LS_DIRS = {
+      "": [
+        { type: "file", name: "index.html" },
+        { type: "dir", name: "education" },
+        { type: "dir", name: "research" },
+        { type: "dir", name: "employment" },
+        { type: "dir", name: "personal" },
+      ],
+      education: [
+        { type: "file", name: "overview.html" },
+        { type: "file", name: "eecs281.html" },
+        { type: "file", name: "rob101.html" },
+      ],
+      research: [
+        { type: "file", name: "overview.html" },
+        { type: "file", name: "sam-lab.html" },
+      ],
+      employment: [{ type: "file", name: "overview.html" }],
+      personal: [{ type: "file", name: "overview.html" }],
+    };
+
     function cwdKey() {
       return cwdSegments.length ? cwdSegments.join("/").toLowerCase() : "";
     }
@@ -378,22 +421,79 @@
       return cwdSegments.length ? "~/site/" + cwdSegments.join("/") : "~/site";
     }
 
+    function isValidCwdSegments(segments) {
+      if (!segments || !segments.length) return true;
+      if (segments.length !== 1) return false;
+      return !!CD_VALID_TOP[segments[0].toLowerCase()];
+    }
+
+    function foldPathDots(baseSegments, pathSegments) {
+      var stack = baseSegments.slice();
+      for (var i = 0; i < pathSegments.length; i++) {
+        var s = pathSegments[i].toLowerCase();
+        if (s === "..") {
+          stack.pop();
+        } else if (s !== ".") {
+          stack.push(s);
+        }
+      }
+      return stack;
+    }
+
+    function computeCdTarget(arg) {
+      var a = (arg || "").trim();
+      if (!a || a === "~" || /^~\/?$/.test(a)) return { ok: true, segments: [] };
+      if (a === "/") return { ok: true, segments: [] };
+      var segments;
+      if (a.charAt(0) === "/" || /^~\/?site\/?/i.test(a)) {
+        var body = a.charAt(0) === "/" ? a.slice(1) : a.replace(/^~\/?site\/?/i, "");
+        body = body.replace(/^\/+/, "");
+        segments = body.split("/").filter(Boolean).map(function (p) {
+          return p.toLowerCase();
+        });
+        segments = foldPathDots([], segments);
+      } else {
+        segments = foldPathDots(
+          cwdSegments,
+          a.split("/").filter(Boolean).map(function (p) {
+            return p.toLowerCase();
+          })
+        );
+      }
+      if (!isValidCwdSegments(segments)) {
+        return { ok: false, segments: segments };
+      }
+      return { ok: true, segments: segments };
+    }
+
     function resolveWithCwd(raw) {
       if (!raw) return null;
       var q = raw.replace(/^["']|["']$/g, "").trim();
       if (!q) return null;
-      var abs = resolveNavigateTarget(q);
-      if (abs) return abs;
-      var lower = q.toLowerCase();
-      var pre = cwdKey();
-      if (pre) {
-        var joined = pre + "/" + lower;
-        if (OPEN_TARGETS[joined]) return OPEN_TARGETS[joined];
-        if (/\.html$/i.test(q)) {
-          var path = "/" + pre + "/" + q.replace(/^\//, "");
-          return resolveNavigateTarget(path);
-        }
+      while (q.startsWith("./")) {
+        q = q.slice(2);
       }
+      if (q.charAt(0) === "/") {
+        return resolveNavigateTarget(q);
+      }
+      var direct = resolveNavigateTarget(q);
+      if (direct) return direct;
+
+      var parts = q.split("/").filter(Boolean);
+      if (!parts.length) return null;
+
+      var last = parts[parts.length - 1];
+      var isHtml = /\.html$/i.test(last);
+      var dirParts = isHtml ? parts.slice(0, -1) : parts;
+      var stack = foldPathDots(cwdSegments, dirParts);
+
+      if (isHtml) {
+        var full = "/" + stack.join("/") + "/" + last.toLowerCase();
+        return resolveNavigateTarget(full);
+      }
+
+      var joined = stack.join("/").toLowerCase();
+      if (OPEN_TARGETS[joined]) return OPEN_TARGETS[joined];
       return null;
     }
 
@@ -499,9 +599,10 @@
     function printHelp() {
       appendMuted("Commands:");
       appendMuted("  help              — this list");
-      appendMuted("  ls                — routes (aliases → page)");
+      appendMuted("  ls                — files in current directory");
       appendMuted("  open <name>       — navigate (uses cwd for relative names)");
-      appendMuted("  cd [path]         — logical cwd (.. ~ /) for open");
+      appendMuted("  cd [path]         — cwd (folders only; use open for .html pages)");
+      appendMuted("                    site root: education, research, employment, personal");
       appendMuted("  pwd               — print cwd");
       appendMuted("  echo <text>       — print text");
       appendMuted("  date              — current date/time");
@@ -510,23 +611,54 @@
     }
 
     function printLs() {
-      var seen = {};
-      var list = [];
-      for (var k in OPEN_TARGETS) {
-        if (!OPEN_TARGETS.hasOwnProperty(k) || !k || k.charAt(0) === "/") continue;
-        var href = OPEN_TARGETS[k];
-        if (!seen[href]) {
-          seen[href] = true;
-          list.push("  " + k + " → " + href);
-        }
+      var key = cwdKey();
+      var list = LS_DIRS[key];
+      if (!list || !list.length) {
+        appendMuted("  (empty)");
+        return;
       }
-      list.sort();
-      for (var i = 0; i < list.length; i++) appendMuted(list[i]);
+      var ordered;
+      if (key === "") {
+        ordered = list.slice();
+      } else {
+        var dirs = [];
+        var files = [];
+        for (var i = 0; i < list.length; i++) {
+          if (list[i].type === "dir") dirs.push(list[i]);
+          else files.push(list[i]);
+        }
+        dirs.sort(function (a, b) {
+          return a.name.localeCompare(b.name);
+        });
+        files.sort(function (a, b) {
+          return a.name.localeCompare(b.name);
+        });
+        ordered = dirs.concat(files);
+      }
+      for (var j = 0; j < ordered.length; j++) {
+        var e = ordered[j];
+        appendMuted("  " + (e.type === "dir" ? e.name + "/" : e.name));
+      }
+    }
+
+    function cdMatchesListingFile(raw) {
+      var want = (raw || "").trim().toLowerCase().replace(/^\.\//, "");
+      if (!want) return null;
+      var list = LS_DIRS[cwdKey()];
+      if (!list) return null;
+      var base = want.replace(/\.html$/i, "");
+      for (var i = 0; i < list.length; i++) {
+        if (list[i].type !== "file") continue;
+        var n = list[i].name.toLowerCase();
+        var nb = n.replace(/\.html$/i, "");
+        if (n === want || nb === base) return list[i].name;
+      }
+      return null;
     }
 
     function runCd(arg) {
       var a = (arg || "").trim();
-      if (!a || a === "~" || a === "~/" ) {
+      if (!a || a === "~" || a === "~/") {
         cwdSegments = [];
         refreshPrompt();
         appendMuted(cwdDisplay());
@@ -544,10 +676,24 @@
         appendMuted(cwdDisplay());
         return;
       }
-      var parts = a.split("/").filter(Boolean);
-      cwdSegments = parts.map(function (p) {
-        return p.toLowerCase();
-      });
+      if (/^~\//.test(a) && !/^~\/?site\/?/i.test(a)) {
+        appendErr("cd: use ~/site/<dir>, /, .., or a folder name (education, research, …)");
+        return;
+      }
+      var result = computeCdTarget(a);
+      if (!result.ok) {
+        var fileHit = cdMatchesListingFile(arg);
+        if (fileHit) {
+          appendErr(
+            "cd: " + fileHit + ": not a directory (only folders like education/ are cwd targets)"
+          );
+          appendMuted("Try: open " + fileHit);
+        } else {
+          appendErr("cd: no such directory: " + (arg || "").trim());
+        }
+        return;
+      }
+      cwdSegments = result.segments;
       refreshPrompt();
       appendMuted(cwdDisplay());
     }
@@ -598,7 +744,7 @@
           window.location.assign(href);
         } else {
           appendErr("Unknown route: " + (arg || "(missing argument)"));
-          appendMuted("Try: ls   or   cd education   then   open overview");
+          appendMuted("Try: ls   or   cd research   then   open sam-lab.html   or   open /research/sam-lab.html");
         }
         return;
       }

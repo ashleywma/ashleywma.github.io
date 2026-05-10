@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="SAM Lab: PyBullet swarm + Dijkstra maze sim, MyCobot control, magnetic microrobots."
+    />
+    <title>research // sam-lab</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">skip to content</a>
+
+    <div class="app-shell app-shell--sidebar-collapsed">
+      <aside class="sidebar" id="sidebar-panel" aria-label="Explorer">
+        <div id="sidebar-root"></div>
+      </aside>
+
+      <div class="app-column">
+        <header class="site-header">
+          <div class="site-header__inner">
+            <div class="site-header__start">
+              <a class="logo" href="/index.html">~/site</a>
+            </div>
+            <div class="site-header__actions">
+              <button
+                type="button"
+                class="theme-toggle"
+                id="theme-toggle"
+                aria-label="switch to dark mode"
+                aria-pressed="false"
+                title="dark mode"
+              >
+                <span class="theme-toggle__icon" aria-hidden="true">◐</span>
+                <span class="theme-toggle__label">dark mode</span>
+              </button>
+            </div>
+          </div>
+        </header>
+
+        <main id="main">
+          <article class="section wrap doc doc--writeup">
+            <p class="muted comment">// research / sam-lab.html</p>
+            <p class="muted"><a href="/research.html">← research</a></p>
+            <h1><span class="prompt" aria-hidden="true"></span>Synergetic Adaptive Machinas (SAM) Lab</h1>
+            <p>
+              Undergraduate research in microrobotics and simulation. Implementation stays in a
+              private codebase (not published here).
+            </p>
+
+            <h2><span class="prompt" aria-hidden="true"></span>Lab</h2>
+            <p>
+              I worked in the
+              <a href="https://samlab.robotics.umich.edu/" rel="noopener noreferrer"
+                >Synergetic Adaptive Machinas Lab</a
+              >
+              (University of Michigan Robotics) under Professor
+              <a
+                href="https://scholar.google.com/citations?user=W9_Hq9MAAAAJ&amp;hl=en"
+                rel="noopener noreferrer"
+                >Steven Ceron</a
+              >
+              (<a href="https://samlab.robotics.umich.edu/publications" rel="noopener noreferrer"
+                >lab publications</a
+              >).
+            </p>
+
+            <h2><span class="prompt" aria-hidden="true"></span>What I built</h2>
+            <p>
+              One thread is a PyBullet world that couples global planning with local swarm-like
+              dynamics; the other is bring-up on a real 6-axis arm. Details below match my private
+              repo structure (not hosted here).
+            </p>
+
+            <h3>Simulation: maze, planner, and swarm</h3>
+            <p>
+              I built a 2D grid maze with a
+              <a
+                href="https://en.wikipedia.org/wiki/Maze_generation_algorithm#Randomized_depth-first_search"
+                rel="noopener noreferrer"
+                >depth-first (recursive backtracker)</a
+              >
+              generator, then extruded walls as rigid boxes in PyBullet so the free space matches the
+              graph I plan on. From that layout I build an adjacency matrix (unit cost on open edges)
+              and run
+              <a href="https://doi.org/10.1007/BF01386390" rel="noopener noreferrer">Dijkstra's algorithm</a>
+              (1959, with a binary heap in the implementation) from a corner start to a far corner goal.
+              The resulting path is visualized in the sim and used as the backbone for motion.
+            </p>
+            <p>
+              A Kuka LBR IIWA model stands in for an external magnetic influence: the end-effector
+              tracks the planned route with inverse kinematics and position-controlled joints while
+              the physics clock steps. Along that trajectory I simulate a swarm of many small sphere
+              "microrobots": each feels an inverse-square-style pull toward the moving field target
+              and pairwise repulsion from neighbors, plus lightweight
+              <a href="https://en.wikipedia.org/wiki/Kuramoto_model" rel="noopener noreferrer"
+                >Kuramoto phase coupling</a
+              >
+              so the
+              group does not collapse into a single point. That is a stylized stand-in for attractive
+              / repulsive magnetic interaction, not a full Maxwell solve.
+            </p>
+
+            <h3>Hardware: MyCobot</h3>
+            <p>
+              On the real arm I used Elephant Robotics'
+              <span class="key">pymycobot</span> over serial: connect at a fixed baud rate, call
+              <span class="value">sync_send_angles</span> for joint-space trajectories (with
+              <span class="value">focus_all_servos</span> / <span class="value">release_all_servos</span>
+              around moves), and poll Cartesian state for debugging. That stack is separate from the
+              PyBullet scene but follows the same idea: scripted poses and coordinated motion for
+              lab demos rather than closed-loop visual servoing.
+            </p>
+
+            <h2><span class="prompt" aria-hidden="true"></span>Direction</h2>
+            <p>
+              The simulation is a sandbox for steering many small agents along a global route while
+              respecting local spacing: a toy model for routing magnetic microrobots over longer
+              paths, with biomedical-style motivation (for example along vessels in the arm). It is
+              simulation-first and not clinical work.
+            </p>
+
+            <h2><span class="prompt" aria-hidden="true"></span>Video</h2>
+            <p class="muted">
+              Demo of the simulation work:
+            </p>
+            <div class="doc-embed">
+              <iframe
+                src="https://www.youtube.com/embed/dB78O27SJEo?autoplay=1&amp;mute=1&amp;playsinline=1"
+                title="SAM Lab microrobot research demo"
+                loading="lazy"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowfullscreen
+              ></iframe>
+            </div>
+            <p class="muted">
+              <a href="https://www.youtube.com/watch?v=dB78O27SJEo" rel="noopener noreferrer">Open on YouTube</a>
+            </p>
+          </article>
+        </main>
+
+        <footer class="site-footer">
+          <div class="wrap site-footer__inner">
+            <p class="muted">
+              <span class="prompt" aria-hidden="true"></span>© <span id="year"></span> - plain HTML/CSS/JS
+            </p>
+          </div>
+        </footer>
+      </div>
+    </div>
+
+    <script src="/script.js"></script>
+  </body>
+</html>
