@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Teaching assistant for CSE 220 (Programming in C) at MSU under Professor Manni Liu."
+    />
+    <title>employment // cse220-ta</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">skip to content</a>
+
+    <div class="app-shell app-shell--sidebar-collapsed">
+      <aside class="sidebar" id="sidebar-panel" aria-label="Explorer">
+        <div id="sidebar-root"></div>
+      </aside>
+
+      <div class="app-column">
+        <header class="site-header">
+          <div class="site-header__inner">
+            <div class="site-header__start">
+              <a class="logo" href="/index.html">~/site</a>
+            </div>
+            <div class="site-header__actions">
+              <button
+                type="button"
+                class="theme-toggle"
+                id="theme-toggle"
+                aria-label="switch to dark mode"
+                aria-pressed="false"
+                title="dark mode"
+              >
+                <span class="theme-toggle__icon" aria-hidden="true">◐</span>
+                <span class="theme-toggle__label">dark mode</span>
+              </button>
+            </div>
+          </div>
+        </header>
+
+        <main id="main">
+          <article class="section wrap doc doc--writeup">
+            <p class="muted comment">// employment / cse220-ta.html</p>
+            <p class="muted"><a href="/employment.html">← employment</a></p>
+            <h1><span class="prompt" aria-hidden="true"></span>Teaching assistant · CSE 220</h1>
+            <p class="muted">
+              Michigan State University · East Lansing, MI · Jan 2024 – Apr 2024
+            </p>
+
+            <p>
+              Spring 2024 teaching assistant for <strong>CSE 220 — Programming in C</strong> under
+              <a
+                href="https://engineering.msu.edu/faculty/Manni-Liu"
+                rel="noopener noreferrer"
+                >Professor Manni Liu</a
+              >
+              (Michigan State University). Course coverage spans procedural C, memory and pointers,
+              structured I/O, core data structures, and introductory algorithmic patterns, with parallel
+              emphasis on <strong>version control</strong>, <strong>shell scripting</strong>, and
+              test-driven submission workflows.
+            </p>
+
+            <p>
+              Lab section enrollment was <strong>33 students</strong>. Responsibilities included
+              supervised programming sessions: stack traces and debugger use, reasoning about allocation
+              and ownership of buffers, control-flow and invariant checks, and verifying behavior against
+              specifications rather than pass/fail on the autograder alone. Labs were coordinated with
+              the weekly lecture topics so assignments reinforced the same toolchain expectations—version
+              history, reproducible builds, and incremental tests where the rubric required them.
+            </p>
+
+            <p>
+              Course operations covered graded assignments and exams, rubric application consistent
+              with the instructional staff, and coordination with other TAs on deadlines, common failure
+              modes in submissions, and escalation paths for academic integrity or edge-case grading
+              questions.
+            </p>
+
+            <h2><span class="prompt" aria-hidden="true"></span>Technical scope</h2>
+            <p>
+              Primary stack: <span class="key">C</span> at assignment depth (memory, pointers,
+              structs, file I/O, lists and trees as assigned), plus version control, Unix shell utilities
+              for build and test automation, and structured manual testing where
+              autograding did not cover corner cases. Instructional support included live code review,
+              explaining compiler and linker diagnostics, and aligning feedback with published rubrics and
+              Professor Manni Liu’s course policies.
+            </p>
+
+            <h2><span class="prompt" aria-hidden="true"></span>Skills from this role</h2>
+            <div class="doc-skills">
+              <section class="doc-skills__block" aria-label="Programming in C">
+                <p class="doc-skills__label">Programming in C</p>
+                <p class="doc-skills__blurb">
+                  Procedural <span class="key">C</span>: memory and pointers, structs, file I/O, assigned
+                  data structures and algorithmic patterns.
+                </p>
+              </section>
+              <section class="doc-skills__block" aria-label="Tooling and automation">
+                <p class="doc-skills__label">Tooling &amp; automation</p>
+                <p class="doc-skills__blurb">
+                  Version control workflows, Unix shell for build and test automation, incremental tests
+                  against specifications.
+                </p>
+              </section>
+              <section class="doc-skills__block" aria-label="Lab instruction">
+                <p class="doc-skills__label">Lab instruction</p>
+                <p class="doc-skills__blurb">
+                  Debuggers and stack traces, allocator and buffer reasoning, compiler and linker
+                  diagnostics, behavior checked against rubrics and specs.
+                </p>
+              </section>
+              <section class="doc-skills__block" aria-label="Course operations">
+                <p class="doc-skills__label">Course operations</p>
+                <p class="doc-skills__blurb">
+                  Graded work to rubrics; coordinated with instructional staff and other TAs on deadlines,
+                  failure modes, and edge-case grading.
+                </p>
+              </section>
+            </div>
+          </article>
+        </main>
+
+        <footer class="site-footer">
+          <div class="wrap site-footer__inner">
+            <p class="muted">
+              <span class="prompt" aria-hidden="true"></span>© <span id="year"></span> — plain HTML/CSS/JS
+            </p>
+          </div>
+        </footer>
+      </div>
+    </div>
+
+    <script src="/script.js"></script>
+  </body>
+</html>

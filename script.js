@@ -146,14 +146,18 @@
         '<span class="tree__name">index.html</span></a></li>'
     );
 
-    rows.push(topFolder("education", []));
     rows.push(
       topFolder("research", [
         linkRow("/research/sam-lab.html", "sam-lab.html", leaf === "sam-lab.html"),
         linkRow("/research/iral-lab.html", "iral-lab.html", leaf === "iral-lab.html"),
       ])
     );
-    rows.push(topFolder("employment", []));
+    rows.push(
+      topFolder("employment", [
+        linkRow("/employment/cse220-ta.html", "cse220-ta.html", leaf === "cse220-ta.html"),
+      ])
+    );
+    rows.push(topFolder("classes", []));
     rows.push(
       topFolder("personal", [
         linkRow("/personal/artwork.html", "artwork.html", leaf === "artwork.html"),
@@ -326,8 +330,9 @@
     var OPEN_TARGETS = {
       home: "/index.html",
       index: "/index.html",
-      education: "/education.html",
-      edu: "/education.html",
+      education: "/classes.html",
+      edu: "/classes.html",
+      classes: "/classes.html",
       research: "/research.html",
       sam: "/research/sam-lab.html",
       samlab: "/research/sam-lab.html",
@@ -340,13 +345,15 @@
       tzoumas: "/research/iral-lab.html",
       employment: "/employment.html",
       work: "/employment.html",
+      cse220_ta: "/employment/cse220-ta.html",
+      msu_ta: "/employment/cse220-ta.html",
       personal: "/personal.html",
       artwork: "/personal/artwork.html",
       art: "/personal/artwork.html",
       dance: "/personal/dance.html",
       rxn: "/personal/dance.html",
-      eecs281: "/education/eecs281.html",
-      rob101: "/education/rob101.html",
+      eecs281: "/classes/eecs281.html",
+      rob101: "/classes/rob101.html",
       graph: "/projects/eecs281-graph-demo.html",
       graph_demo: "/projects/eecs281-graph-demo.html",
       bot_race: "/projects/rob101-bot-race.html",
@@ -358,28 +365,37 @@
       "projects/bot_race": "/projects/rob101-bot-race.html",
       "projects/interface": "/projects/research-ui-lab.html",
       "projects/bwl": "/projects/bwl-dashboard.html",
-      "education/overview": "/education.html",
+      "education/overview": "/classes.html",
+      "classes/overview": "/classes.html",
       "research/sam-lab": "/research/sam-lab.html",
       "research/iral-lab": "/research/iral-lab.html",
       "research/overview": "/research.html",
       "employment/overview": "/employment.html",
+      "employment/cse220-ta": "/employment/cse220-ta.html",
       "personal/overview": "/personal.html",
       "personal/artwork": "/personal/artwork.html",
       "personal/dance": "/personal/dance.html",
-      "education/eecs281": "/education/eecs281.html",
-      "education/rob101": "/education/rob101.html",
+      "education/eecs281": "/classes/eecs281.html",
+      "education/rob101": "/classes/rob101.html",
+      "classes/eecs281": "/classes/eecs281.html",
+      "classes/rob101": "/classes/rob101.html",
       "/index.html": "/index.html",
-      "/education.html": "/education.html",
+      "/education.html": "/classes.html",
+      "/classes.html": "/classes.html",
       "/research.html": "/research.html",
       "/research/sam-lab.html": "/research/sam-lab.html",
       "/research/iral-lab.html": "/research/iral-lab.html",
       "/employment.html": "/employment.html",
+      "/employment/cse220-ta.html": "/employment/cse220-ta.html",
       "/personal.html": "/personal.html",
       "/personal/artwork.html": "/personal/artwork.html",
       "/personal/dance.html": "/personal/dance.html",
-      "/education/eecs281.html": "/education/eecs281.html",
-      "/education/rob101.html": "/education/rob101.html",
-      "/education/overview.html": "/education.html",
+      "/education/eecs281.html": "/classes/eecs281.html",
+      "/education/rob101.html": "/classes/rob101.html",
+      "/education/overview.html": "/classes.html",
+      "/classes/eecs281.html": "/classes/eecs281.html",
+      "/classes/rob101.html": "/classes/rob101.html",
+      "/classes/overview.html": "/classes.html",
       "/research/overview.html": "/research.html",
       "/employment/overview.html": "/employment.html",
       "/personal/overview.html": "/personal.html",
@@ -407,7 +423,7 @@
 
     /** Logical directories you may cd into (matches site layout; no projects/ at repo root). */
     var CD_VALID_TOP = {
-      education: true,
+      classes: true,
       research: true,
       employment: true,
       personal: true,
@@ -417,22 +433,21 @@
     var LS_DIRS = {
       "": [
         { type: "file", name: "index.html" },
-        { type: "dir", name: "education" },
         { type: "dir", name: "research" },
         { type: "dir", name: "employment" },
+        { type: "dir", name: "classes" },
         { type: "dir", name: "personal" },
       ],
-      education: [
-        { type: "file", name: "overview.html" },
-        { type: "file", name: "eecs281.html" },
-        { type: "file", name: "rob101.html" },
-      ],
+      classes: [],
       research: [
         { type: "file", name: "overview.html" },
         { type: "file", name: "sam-lab.html" },
         { type: "file", name: "iral-lab.html" },
       ],
-      employment: [{ type: "file", name: "overview.html" }],
+      employment: [
+        { type: "file", name: "overview.html" },
+        { type: "file", name: "cse220-ta.html" },
+      ],
       personal: [
         { type: "file", name: "artwork.html" },
         { type: "file", name: "dance.html" },
@@ -485,6 +500,12 @@
             return p.toLowerCase();
           })
         );
+      }
+      if (segments.length === 1) {
+        var topDir = segments[0].toLowerCase();
+        if (topDir === "education" || topDir === "edu") {
+          segments[0] = "classes";
+        }
       }
       if (!isValidCwdSegments(segments)) {
         return { ok: false, segments: segments };
@@ -628,7 +649,7 @@
       appendMuted("  ls                — files in current directory");
       appendMuted("  open <name>       — navigate (uses cwd for relative names)");
       appendMuted("  cd [path]         — cwd (folders only; use open for .html pages)");
-      appendMuted("                    site root: education, research, employment, personal");
+      appendMuted("                    site root: research, employment, classes, personal");
       appendMuted("  pwd               — print cwd");
       appendMuted("  echo <text>       — print text");
       appendMuted("  date              — current date/time");
@@ -687,7 +708,7 @@
         return;
       }
       if (/^~\//.test(a) && !/^~\/?site\/?/i.test(a)) {
-        appendErr("cd: use ~/site/<dir>, /, .., or a folder name (education, research, …)");
+        appendErr("cd: use ~/site/<dir>, /, .., or a folder name (classes, research, …)");
         return;
       }
       var result = computeCdTarget(a);
@@ -695,7 +716,7 @@
         var fileHit = cdMatchesListingFile(arg);
         if (fileHit) {
           appendErr(
-            "cd: " + fileHit + ": not a directory (only folders like education/ are cwd targets)"
+            "cd: " + fileHit + ": not a directory (only folders like classes/ are cwd targets)"
           );
           appendMuted("Try: open " + fileHit);
         } else {
