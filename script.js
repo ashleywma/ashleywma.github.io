@@ -161,6 +161,11 @@
             "visualcron.html",
             inBwl && leaf === "visualcron.html"
           ),
+          linkRow(
+            "/employment/bwl/interactive-board.html",
+            "interactive-board.html",
+            inBwl && leaf === "interactive-board.html"
+          ),
         ]),
         linkRow("/employment/cse220-ta.html", "cse220-ta.html", leaf === "cse220-ta.html"),
       ])
@@ -377,6 +382,8 @@
       "employment/bwl/overview": "/employment/bwl/overview.html",
       "employment/bwl/visualcron": "/employment/bwl/visualcron.html",
       visualcron: "/employment/bwl/visualcron.html",
+      interactiveboard: "/employment/bwl/interactive-board.html",
+      "employment/bwl/interactive-board": "/employment/bwl/interactive-board.html",
       "education/overview": "/classes.html",
       "classes/overview": "/classes.html",
       "research/sam-lab": "/research/sam-lab.html",
@@ -400,6 +407,7 @@
       "/employment/cse220-ta.html": "/employment/cse220-ta.html",
       "/employment/bwl/overview.html": "/employment/bwl/overview.html",
       "/employment/bwl/visualcron.html": "/employment/bwl/visualcron.html",
+      "/employment/bwl/interactive-board.html": "/employment/bwl/interactive-board.html",
       "/personal.html": "/personal.html",
       "/personal/artwork.html": "/personal/artwork.html",
       "/personal/dance.html": "/personal/dance.html",
@@ -459,7 +467,10 @@
         { type: "dir", name: "bwl" },
         { type: "file", name: "cse220-ta.html" },
       ],
-      "employment/bwl": [{ type: "file", name: "visualcron.html" }],
+      "employment/bwl": [
+        { type: "file", name: "visualcron.html" },
+        { type: "file", name: "interactive-board.html" },
+      ],
       personal: [
         { type: "file", name: "artwork.html" },
         { type: "file", name: "dance.html" },

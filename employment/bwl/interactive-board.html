@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Water Department Board: interactive learning device for water conservation — software overview only."
+    />
+    <title>employment // bwl / interactive-board</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">skip to content</a>
+
+    <div class="app-shell app-shell--sidebar-collapsed">
+      <aside class="sidebar" id="sidebar-panel" aria-label="Explorer">
+        <div id="sidebar-root"></div>
+      </aside>
+
+      <div class="app-column">
+        <header class="site-header">
+          <div class="site-header__inner">
+            <div class="site-header__start">
+              <a class="logo" href="/index.html">~/site</a>
+            </div>
+            <div class="site-header__actions">
+              <button
+                type="button"
+                class="theme-toggle"
+                id="theme-toggle"
+                aria-label="switch to dark mode"
+                aria-pressed="false"
+                title="dark mode"
+              >
+                <span class="theme-toggle__icon" aria-hidden="true">◐</span>
+                <span class="theme-toggle__label">dark mode</span>
+              </button>
+            </div>
+          </div>
+        </header>
+
+        <main id="main">
+          <article class="section wrap doc doc--writeup">
+            <p class="muted comment">// employment / bwl / interactive-board.html</p>
+            <p class="muted"><a href="/employment/bwl/overview.html">← employment / bwl / overview.html</a></p>
+            <h1><span class="prompt" aria-hidden="true"></span>Water Department Board (interactive)</h1>
+            <p class="muted">
+              Portfolio summary only — the deployed device/app and any partner assets stay private.
+            </p>
+
+            <h2><span class="prompt" aria-hidden="true"></span>What it is</h2>
+            <p>
+              An <strong>interactive learning device</strong> designed to help children learn about
+              <strong>water conservation</strong>. The device combines physical inputs (buttons / sensors
+              via a microcontroller) with a guided on-screen experience.
+            </p>
+
+            <h2><span class="prompt" aria-hidden="true"></span>My role</h2>
+            <p>
+              I built the <strong>software portion</strong>: the application UI, state transitions, and
+              hardware input integration that drives the activity flow.
+            </p>
+            <p>
+              The <strong>hardware portion</strong> was built by
+              <a href="https://www.linkedin.com/in/mengxshi/" rel="noopener noreferrer">Meng Shi</a>; we
+              collaborated closely to align device inputs with the on-screen experience.
+            </p>
+
+            <h2><span class="prompt" aria-hidden="true"></span>Stack</h2>
+            <p>
+              Prototype implementation used <strong>.NET</strong> with a component UI and a lightweight
+              service that listens for <strong>serial</strong> input from the device controller
+              (e.g. Arduino).
+            </p>
+
+            <h2><span class="prompt" aria-hidden="true"></span>Hardware integration</h2>
+            <p>
+              The app listens on a configured serial port, parses button messages, and maps them to
+              UI events so the physical board can navigate steps, confirm choices, and advance the
+              experience without a keyboard/mouse.
+            </p>
+
+            <h2><span class="prompt" aria-hidden="true"></span>Skills</h2>
+            <div class="doc-skills">
+              <section class="doc-skills__block" aria-label="Frontend">
+                <p class="doc-skills__label">Frontend</p>
+                <p class="doc-skills__blurb">
+                  .NET, Blazor Server, MudBlazor, component UI, state management
+                </p>
+              </section>
+              <section class="doc-skills__block" aria-label="Hardware I/O">
+                <p class="doc-skills__label">Hardware I/O</p>
+                <p class="doc-skills__blurb">
+                  Serial I/O, System.IO.Ports, event-driven input, microcontroller integration
+                </p>
+              </section>
+              <section class="doc-skills__block" aria-label="Engineering">
+                <p class="doc-skills__label">Engineering</p>
+                <p class="doc-skills__blurb">
+                  Configuration, environment-specific settings, error handling, device availability checks
+                </p>
+              </section>
+            </div>
+          </article>
+        </main>
+
+        <footer class="site-footer">
+          <div class="wrap site-footer__inner">
+            <p class="muted">
+              <span class="prompt" aria-hidden="true"></span>© <span id="year"></span> — plain HTML/CSS/JS
+            </p>
+          </div>
+        </footer>
+      </div>
+    </div>
+
+    <script src="/script.js"></script>
+  </body>
+</html>
+

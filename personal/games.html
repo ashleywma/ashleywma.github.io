@@ -18,3 +18,24 @@
     <p><a href="/personal/games/word-hunt.html">Continue to Word Hunt</a></p>
   </body>
 </html>
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>redirect — games</title>
+    <script>
+      (function () {
+        var q = window.location.search || "";
+        var h = window.location.hash || "";
+        var target = "/personal/games/word-hunt.html" + q + h;
+        window.location.replace(target);
+      })();
+    </script>
+    <meta http-equiv="refresh" content="0; url=/personal/games/word-hunt.html" />
+  </head>
+  <body>
+    <p><a href="/personal/games/word-hunt.html">Continue to Word Hunt</a></p>
+  </body>
+</html>
