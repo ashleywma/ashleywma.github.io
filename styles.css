@@ -854,6 +854,8 @@ a:hover {
   border-radius: 10px;
   padding: 0.75rem;
   background: var(--bg-elevated);
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 /* Author `display: flex` above would otherwise beat the `hidden` attribute. */
