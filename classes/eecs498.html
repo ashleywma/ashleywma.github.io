@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="EECS 498 (Search Engines) — Twoogle, a distributed from-scratch search engine: crawler, parsers, index, constraint solver, ranker."
+    />
+    <title>classes // eecs498</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">skip to content</a>
+
+    <div class="app-shell app-shell--sidebar-collapsed">
+      <aside class="sidebar" id="sidebar-panel" aria-label="Explorer">
+        <div id="sidebar-root"></div>
+      </aside>
+
+      <div class="app-column">
+        <header class="site-header">
+          <div class="site-header__inner">
+            <div class="site-header__start">
+              <a class="logo" href="/index.html">~/site</a>
+            </div>
+            <div class="site-header__actions">
+              <button
+                type="button"
+                class="theme-toggle"
+                id="theme-toggle"
+                aria-label="switch to dark mode"
+                aria-pressed="false"
+                title="dark mode"
+              >
+                <span class="theme-toggle__icon" aria-hidden="true">◐</span>
+                <span class="theme-toggle__label">dark mode</span>
+              </button>
+            </div>
+          </div>
+        </header>
+
+        <main id="main">
+          <article class="section wrap doc doc--writeup">
+            <p class="muted comment">// classes / eecs498.html</p>
+            <p class="muted"><a href="/classes.html">← classes</a></p>
+            <h1><span class="prompt" aria-hidden="true"></span>EECS 498 (Search Engines)</h1>
+            <p class="muted">University of Michigan · Winter 2026</p>
+
+            <p>
+              One semester-long project: build a working web search engine from scratch in C++ — no
+              search libraries, no STL containers, no third-party HTTP or HTML stack. Six of us built
+              it end to end and shipped it on a 25-machine AWS cluster. We called it
+              <strong>Twoogle</strong>. This page is a high-level write-up of the system.
+            </p>
+
+            <p class="muted">
+              <a href="https://github.com/Twoooooogle/search-engine" rel="noopener noreferrer"
+                >Source on GitHub</a
+              >
+            </p>
+
+            <h2><span class="prompt" aria-hidden="true"></span>Scale it reached</h2>
+            <ul class="doc__list">
+              <li>
+                <span class="key">cluster</span>: <span class="value">25 AWS EC2 i7i.2xlarge nodes</span>
+                (8 vCPU, 64 GB RAM each) on ephemeral NVMe SSD, sharded by hashed domain so inlinks and
+                anchor text stay on one machine
+              </li>
+              <li>
+                <span class="key">crawl</span>: <span class="value">244,115,911 URLs</span> in about
+                four hours (~50M/hr), 39 crawler threads per machine, from a hand-built 312-link seed
+                list
+              </li>
+              <li>
+                <span class="key">corpus</span>: <span class="value">652.23 GB</span> of parsed
+                documents plus 2,152.67 GB of anchor data
+              </li>
+              <li>
+                <span class="key">index</span>: <span class="value">200,484,475 pages</span>,
+                333.8 billion tokens (~400 million unique), 6,137 chunks averaging ~250 MB,
+                1,481.87 GB — built in 20–25 minutes
+              </li>
+              <li>
+                <span class="key">on disk</span>: <span class="value">2,151.64 GB</span> total —
+                index plus the parsed HTML/PDF kept for snippets
+              </li>
+              <li>
+                <span class="key">query</span>: <span class="value">~300 ms average</span> (50 ms – 1.5 s
+                observed), fanned out from one frontend node to 24 solver shards plus a dedicated
+                Wikipedia node
+              </li>
+              <li>
+                <span class="key">codebase</span>: <span class="value">~51k lines</span> of C++, of
+                which I wrote about 7.6k (~15%)
+              </li>
+            </ul>
+
+            <h2><span class="prompt" aria-hidden="true"></span>What I worked on</h2>
+            <p>
+              Most components were owned by pairs; the query-side language work turned out to be
+              cleaner as a solo task, so I took it. I wrote the <strong>query compiler</strong>, the
+              <strong>frontend</strong>, <strong>lemmatization</strong>,
+              <strong>URL parsing</strong>, and <strong>spellcheck</strong>, plus a large share of our
+              hand-rolled standard library (string, vector, hash table) that everything else was built
+              on.
+            </p>
+            <div class="doc-skills">
+              <section class="doc-skills__block" aria-label="Query compiler">
+                <p class="doc-skills__label">Query compiler</p>
+                <p class="doc-skills__blurb">
+                  Tokenize → parse tree → ISR tree. Full query language: phrases, grouping, NOT, AND
+                  (explicit and implicit), OR, and fielded decorators for title, header, body, anchor,
+                  and URL.
+                </p>
+              </section>
+              <section class="doc-skills__block" aria-label="URL parsing">
+                <p class="doc-skills__label">URL parsing</p>
+                <p class="doc-skills__blurb">
+                  Split URLs on separators, then word-break unknown segments against a merged
+                  dictionary (open-source word list unioned with the top 40k English words and 46.5k
+                  proper nouns) using O(n²) DP per chunk, emitting tokens and ranking signals.
+                </p>
+              </section>
+              <section class="doc-skills__block" aria-label="Spellcheck and lemmatization">
+                <p class="doc-skills__label">Spellcheck &amp; lemmatization</p>
+                <p class="doc-skills__blurb">
+                  Length-bucketed dictionaries searched from n−2 to n+2, capped Levenshtein distance
+                  with early exit, ties broken by corpus popularity then lexicographically. Lemmatizer
+                  folds word variants to a common base at parse time to improve recall.
+                </p>
+              </section>
+              <section class="doc-skills__block" aria-label="Frontend and lib">
+                <p class="doc-skills__label">Frontend &amp; lib</p>
+                <p class="doc-skills__blurb">
+                  Search client and results rendering (title, description, URL fallback, truncation,
+                  spelling suggestions), and the from-scratch container library the whole engine
+                  depends on.
+                </p>
+              </section>
+            </div>
+
+            <h2><span class="prompt" aria-hidden="true"></span>System</h2>
+
+            <details class="doc-project">
+              <summary>
+                <span class="tree__chev" aria-hidden="true"></span>
+                <span>Crawler &amp; frontier</span>
+              </summary>
+              <div class="doc-project__body">
+                <p>
+                  <strong>What it does.</strong> The frontier holds every URL we discover, scored on
+                  heuristics like slash depth, seed-list distance, and query-parameter count, then
+                  bucketed into five priority tiers plus a dedicated bucket for seed-list links and
+                  seed-list hostnames. A bloom filter deduplicates fetches. Popping drains buckets in
+                  priority order but randomly within a bucket, which keeps host diversity high.
+                </p>
+                <p>
+                  <strong>Politeness.</strong> A DNS pool resolves hosts, a robots pool fetches and
+                  caches <code>robots.txt</code> behind an in-flight table, and a fetch scheduler leases
+                  jobs to fetch threads while enforcing per-domain cooldowns, strikes, retries, and
+                  429/timeout backoff.
+                </p>
+                <p>
+                  <strong>What broke.</strong> After 20–30 minutes nearly every fresh URL belonged to a
+                  delayed host, so fetch threads starved. We were being too polite. Cycling those
+                  domains back through the frontier raised our 429 rate but restored domain diversity
+                  and kept throughput up.
+                </p>
+              </div>
+            </details>
+
+            <details class="doc-project">
+              <summary>
+                <span class="tree__chev" aria-hidden="true"></span>
+                <span>Parsers — HTML, PDF, URL</span>
+              </summary>
+              <div class="doc-project__body">
+                <p>
+                  <strong>HTML.</strong> Built on top of the course homework parser, then extended: a
+                  whitelist for tokens that legitimately contain punctuation (C++, .NET, Node.js), a
+                  blacklist for slurs and spam, lemmatization of stripped tokens, and trimming of
+                  alphanumeric runs past 55 characters as spam (the longest English word is 45; the
+                  extra bytes cover multi-byte UTF-8). Tokens are decorated by position —
+                  <code>@</code> for title, <code>$</code> for anchor — so the constraint solver can
+                  evaluate fields separately. We read <code>&lt;html lang="en"&gt;</code> to drop
+                  non-English pages and <code>&lt;meta&gt;</code> for descriptions and viewport.
+                </p>
+                <p>
+                  <strong>PDF.</strong> PDFium extracts text as UTF-16, we convert to UTF-8 and feed it
+                  through the same parser object. The fiddly part was outbound links, since many PDF
+                  links point back into the same document.
+                </p>
+                <p>
+                  <strong>URL.</strong> Mine — see above. Splitting on separators gets you most of the
+                  way, but real URLs are full of run-together words, so unmatched segments go through a
+                  dictionary word-break before being emitted as tokens.
+                </p>
+              </div>
+            </details>
+
+            <details class="doc-project">
+              <summary>
+                <span class="tree__chev" aria-hidden="true"></span>
+                <span>Index &amp; tiering</span>
+              </summary>
+              <div class="doc-project__body">
+                <p>
+                  <strong>Layout.</strong> Each chunk — 6,137 of them, averaging about 250 MB — holds
+                  per-page metadata (URL, title, description), two hash blobs — one for body text, one
+                  for anchor text — and three posting-list sections: EndDoc, body, anchor. Positions are stored as variable-byte
+                  encoded deltas. Metadata and hash blobs are serialized at the head of the file so
+                  readers in the constraint solver can deserialize cheaply.
+                </p>
+                <p>
+                  <strong>Tiering.</strong> Chunks are grouped by static rank so queries start in the
+                  highest-quality tier and only fall through if they can't fill top-K. Cutoffs live in
+                  a config file, so retuning doesn't mean recompiling the builder. Static rank is a
+                  <code>uint8_t</code>, 0–255. Our first build scored and sorted every URL in memory
+                  before assigning workers; switching to a streaming per-worker queue cut hours off
+                  build time.
+                </p>
+              </div>
+            </details>
+
+            <details class="doc-project">
+              <summary>
+                <span class="tree__chev" aria-hidden="true"></span>
+                <span>Query compiler &amp; constraint solver</span>
+              </summary>
+              <div class="doc-project__body">
+                <p>
+                  <strong>Pipeline.</strong> The raw query string is compiled into a parse tree and
+                  then into an ISR tree of implicit ANDs. Every solver node carries its own compiler
+                  instance, so the frontend ships the query as a plain string and each shard compiles
+                  it locally.
+                </p>
+                <p>
+                  <strong>Language.</strong> Phrases with <code>"..."</code>, grouping with
+                  parentheses, <code>~</code> for NOT, <code>&amp;</code>/<code>&amp;&amp;</code> or
+                  adjacency for AND, <code>|</code>/<code>||</code> for OR at lowest precedence, and
+                  field decorators: <code>@</code> title, <code>^</code> header, <code>*</code> body,
+                  <code>$</code> anchor, <code>%</code> URL.
+                </p>
+                <p>
+                  <strong>Performance.</strong> The solver orders ISRAnd and ISRPhrase to seek the
+                  rarest term first — leading with a stop word means seeking and skipping constantly.
+                  We also sized machines for RAM specifically so index chunks stay resident, since disk
+                  seeks would have dominated everything else.
+                </p>
+              </div>
+            </details>
+
+            <details class="doc-project">
+              <summary>
+                <span class="tree__chev" aria-hidden="true"></span>
+                <span>Ranking — static and dynamic</span>
+              </summary>
+              <div class="doc-project__body">
+                <p>
+                  <strong>Static, at index time.</strong> Computing this during the crawl would have
+                  made iteration hopeless (a crawl took four hours; an index build takes 25 minutes),
+                  and computing it at query time would cost latency for something knowable in advance.
+                  So parse-time document features go straight into the index. Boosts come from an
+                  accessibility score (alt text, viewport, description), link density (anchor tokens ÷
+                  total tokens, sweet spot ~0.3–0.5), token-bytes ÷ HTML-bytes (~0.2–0.35), stop-word
+                  ratio (~0.3), and digit ratio (~0.15–0.2), each weighted by threshold or bell curve.
+                  Deductions come from unlabeled form fields, spam strings, deprecated tags, and
+                  <code>&lt;br&gt;</code> spam. Ratios were hand-tuned on 20–30 links and validated on a
+                  5,000-URL crawl.
+                </p>
+                <p>
+                  <strong>Dynamic, at query time.</strong> A Ranker prepares each query once, flattening
+                  the ISR tree into slots and groups so we never re-walk the tree per matched document.
+                  The final score is a linear combination of span scoring (a sliding window over sorted
+                  term positions, scored on coverage, compactness, order, phrase proximity, and
+                  earliness), query-term matching against title/URL/description with exact-match boosts,
+                  anchor evidence weighted by distinct sources and hosts, and a fielded BM25-style
+                  lexical score with field multipliers.
+                </p>
+                <p>
+                  <strong>What we learned.</strong> Anchor-text-only scoring was our first approach and
+                  it worked surprisingly well — but anchor text is exactly what Google bombs exploit, so
+                  it can't stand alone. Separating Meh from Good pages was also genuinely hard: Wikipedia
+                  sometimes scored 150 while worse pages hit 200.
+                </p>
+              </div>
+            </details>
+
+            <details class="doc-project">
+              <summary>
+                <span class="tree__chev" aria-hidden="true"></span>
+                <span>Serving &amp; crash handling</span>
+              </summary>
+              <div class="doc-project__body">
+                <p>
+                  <strong>Serving.</strong> Clients POST to a frontend node, which fans out to 24 solver
+                  nodes over a <code>/search</code> endpoint and merges top-K results before responding.
+                  Index chunks are assigned by chunk number mod 24 — the 25th node serves Wikipedia
+                  exclusively.
+                </p>
+                <p>
+                  <strong>Crawler recovery.</strong> Checkpoints every five minutes with a
+                  write-to-temp-then-rename pattern and rotated backups, capturing the bloom filter,
+                  scheduler queues with per-domain rate state, in-flight jobs, peer outbound queues, and
+                  anchor queues. SIGINT closes worker queues and checkpoints before exiting. A
+                  supervisor restarts on failure and forces a restart above 50 GB resident to avoid OOM
+                  kills.
+                </p>
+                <p>
+                  <strong>Everything else.</strong> The index builder is deterministic and finishes in
+                  under half an hour, so a failed build just reruns from scratch. The ranker is
+                  single-threaded per query with parallelism at the cluster level. The query server logs
+                  and survives accept and thread-creation failures but has no retry or circuit breaker —
+                  a dead backend fails that query.
+                </p>
+              </div>
+            </details>
+
+          </article>
+        </main>
+
+        <footer class="site-footer">
+          <div class="wrap site-footer__inner">
+            <p class="muted">
+              <span class="prompt" aria-hidden="true"></span>© <span id="year"></span> — plain HTML/CSS/JS
+            </p>
+          </div>
+        </footer>
+      </div>
+    </div>
+
+    <script src="/script.js"></script>
+  </body>
+</html>

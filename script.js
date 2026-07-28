@@ -170,7 +170,15 @@
         linkRow("/employment/cse220-ta.html", "cse220-ta.html", leaf === "cse220-ta.html"),
       ])
     );
-    rows.push(topFolder("classes", []));
+    rows.push(
+      topFolder("classes", [
+        linkRow(
+          "/classes/eecs498.html",
+          "eecs498.html",
+          parts[0] === "classes" && leaf === "eecs498.html"
+        ),
+      ])
+    );
     rows.push(
       topFolder("personal", [
         linkRow("/personal/artwork.html", "artwork.html", leaf === "artwork.html"),
@@ -376,6 +384,11 @@
       wordhunt: "/personal/games/word-hunt.html",
       "word hunt": "/personal/games/word-hunt.html",
       eecs281: "/classes/eecs281.html",
+      eecs498: "/classes/eecs498.html",
+      "498": "/classes/eecs498.html",
+      twoogle: "/classes/eecs498.html",
+      "search engine": "/classes/eecs498.html",
+      searchengine: "/classes/eecs498.html",
       bwl: "/employment/bwl/overview.html",
       "projects/bwl": "/employment/bwl/overview.html",
       "employment/bwl": "/employment/bwl/overview.html",
@@ -397,6 +410,8 @@
       "personal/games": "/personal/games/index.html",
       "education/eecs281": "/classes/eecs281.html",
       "classes/eecs281": "/classes/eecs281.html",
+      "education/eecs498": "/classes/eecs498.html",
+      "classes/eecs498": "/classes/eecs498.html",
       "/index.html": "/index.html",
       "/education.html": "/classes.html",
       "/classes.html": "/classes.html",
@@ -417,6 +432,8 @@
       "/education/eecs281.html": "/classes/eecs281.html",
       "/education/overview.html": "/classes.html",
       "/classes/eecs281.html": "/classes/eecs281.html",
+      "/education/eecs498.html": "/classes/eecs498.html",
+      "/classes/eecs498.html": "/classes/eecs498.html",
       "/classes/overview.html": "/classes.html",
       "/research/overview.html": "/research.html",
       "/employment/overview.html": "/employment.html",
@@ -456,7 +473,7 @@
         { type: "dir", name: "classes" },
         { type: "dir", name: "personal" },
       ],
-      classes: [],
+      classes: [{ type: "file", name: "eecs498.html" }],
       research: [
         { type: "file", name: "overview.html" },
         { type: "file", name: "sam-lab.html" },

@@ -1298,6 +1298,73 @@ a:hover {
   color: var(--text);
 }
 
+/* Collapsible project rows — explorer-style row + heading-sized title (replaces a separate “Projects” h2) */
+.doc-project {
+  margin: 0;
+}
+
+.doc-project:first-of-type {
+  margin-top: 1.25rem;
+}
+
+.doc-project:not(:first-of-type) {
+  margin-top: .5rem;
+}
+
+.doc-project > summary {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.35rem 0.4rem;
+  margin: 0.06rem 0;
+  cursor: pointer;
+  list-style: none;
+  list-style-type: none;
+  border-radius: 4px;
+  user-select: none;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+.doc-project > summary::-webkit-details-marker {
+  display: none;
+}
+
+.doc-project > summary::marker {
+  content: "";
+}
+
+.doc-project > summary:hover {
+  background: color-mix(in srgb, var(--keyword) 8%, transparent);
+  color: var(--text);
+}
+
+.doc-project[open] > summary {
+  color: var(--text);
+}
+
+.doc-project[open] > summary > .tree__chev::before {
+  transform: rotate(45deg);
+}
+
+.doc-project__body {
+  margin: 0;
+  margin-left: 0.55rem;
+  padding: 0.1rem 0 0.35rem 0.65rem;
+  border-left: 1px solid var(--border);
+}
+
+.doc-project__body p {
+  margin: 0.45rem 0 0;
+  color: var(--text-muted);
+}
+
+.doc-project__body p:first-child {
+  margin-top: 0.2rem;
+}
+
 .doc__list {
   margin: 0 0 1rem;
   padding-left: 1.25rem;
