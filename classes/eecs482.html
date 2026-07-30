@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="EECS 482 (Operating Systems) — projects in synchronization, user-level threading, virtual memory, and concurrent file systems."
+    />
+    <title>classes // eecs482</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">skip to content</a>
+
+    <div class="app-shell app-shell--sidebar-collapsed">
+      <aside class="sidebar" id="sidebar-panel" aria-label="Explorer">
+        <div id="sidebar-root"></div>
+      </aside>
+
+      <div class="app-column">
+        <header class="site-header">
+          <div class="site-header__inner">
+            <div class="site-header__start">
+              <a class="logo" href="/index.html">~/site</a>
+            </div>
+            <div class="site-header__actions">
+              <button
+                type="button"
+                class="theme-toggle"
+                id="theme-toggle"
+                aria-label="switch to dark mode"
+                aria-pressed="false"
+                title="dark mode"
+              >
+                <span class="theme-toggle__icon" aria-hidden="true">◐</span>
+                <span class="theme-toggle__label">dark mode</span>
+              </button>
+            </div>
+          </div>
+        </header>
+
+        <main id="main">
+          <article class="section wrap doc doc--writeup">
+            <p class="muted comment">// classes / eecs482.html</p>
+            <p class="muted"><a href="/classes.html">← classes</a></p>
+            <h1><span class="prompt" aria-hidden="true"></span>EECS 482 (Operating Systems)</h1>
+            <p class="muted">University of Michigan · Fall 2025</p>
+
+            <p>
+              A project-driven systems course covering concurrency, scheduling, virtual memory, and
+              file systems. Across three C++ projects, I implemented the operating-system
+              abstractions behind threads, memory, and persistent storage. Each project was built
+              with a team of three.
+            </p>
+
+            <p class="muted">
+              Implementation source is private to respect course policies; these are high-level
+              descriptions of the systems and concepts.
+            </p>
+
+            <div class="doc-skills">
+              <section class="doc-skills__block" aria-label="Concurrency">
+                <p class="doc-skills__label">Concurrency</p>
+                <p class="doc-skills__blurb">
+                  Threads, mutexes, condition variables, interrupts, scheduling, and synchronization
+                  across multiple CPUs.
+                </p>
+              </section>
+              <section class="doc-skills__block" aria-label="Memory">
+                <p class="doc-skills__label">Memory</p>
+                <p class="doc-skills__blurb">
+                  Page tables, faults, swap- and file-backed pages, clock eviction, sharing, and
+                  copy-on-write.
+                </p>
+              </section>
+              <section class="doc-skills__block" aria-label="Storage">
+                <p class="doc-skills__label">Storage</p>
+                <p class="doc-skills__blurb">
+                  Inodes, directories, block allocation, ownership checks, network requests, and
+                  fine-grained locking.
+                </p>
+              </section>
+            </div>
+
+            <h2><span class="prompt" aria-hidden="true"></span>Projects</h2>
+
+            <details class="doc-project">
+              <summary>
+                <span class="tree__chev" aria-hidden="true"></span>
+                <span>Project 1 — User-level thread library</span>
+              </summary>
+              <div class="doc-project__body">
+                <p>
+                  A user-level thread runtime implementing thread creation, yielding, joining,
+                  mutexes, and condition variables on top of low-level execution contexts. The
+                  library manages thread stacks and context switching, schedules runnable work across
+                  multiple simulated CPUs, and safely reclaims completed threads. Timer interrupts
+                  provide preemptive scheduling, while inter-processor interrupts wake suspended CPUs
+                  when new work becomes available. The implementation coordinates ready, running,
+                  waiting, and completed threads while preventing lost wakeups and protecting
+                  scheduler state during asynchronous interrupts.
+                </p>
+              </div>
+            </details>
+
+            <details class="doc-project">
+              <summary>
+                <span class="tree__chev" aria-hidden="true"></span>
+                <span>Project 2 — Virtual-memory pager</span>
+              </summary>
+              <div class="doc-project__body">
+                <p>
+                  An external pager that manages per-process virtual address spaces, handles page
+                  faults, and moves data between physical memory, swap, and files. It supports both
+                  swap-backed and file-backed mappings, shares file-backed physical pages across
+                  processes, and uses a clock-based replacement policy driven by reference and dirty
+                  state. Forked processes share swap-backed pages through copy-on-write, including a
+                  pinned zero-page optimization for newly mapped memory, while eager swap reservation
+                  guarantees that private copies can be created later. Page-table permissions are
+                  updated dynamically to track access and trigger the faults needed for eviction,
+                  writeback, and deferred copying.
+                </p>
+              </div>
+            </details>
+
+            <details class="doc-project">
+              <summary>
+                <span class="tree__chev" aria-hidden="true"></span>
+                <span>Project 3 — Concurrent network file server</span>
+              </summary>
+              <div class="doc-project__body">
+                <p>
+                  A multithreaded network file server supporting authenticated create, delete, read,
+                  and write requests over TCP. The server parses and validates requests, traverses
+                  inode-backed directory trees, enforces file ownership, manages directory entries,
+                  and allocates disk blocks. At startup, it reconstructs free-space metadata by
+                  scanning the existing file system. Fine-grained per-inode reader and upgradeable
+                  locks allow unrelated paths and read-only operations to proceed concurrently, with
+                  mutations taking exclusive access only where required. Shared metadata, including
+                  the free-block pool, is synchronized independently to preserve concurrency across
+                  otherwise unrelated requests.
+                </p>
+              </div>
+            </details>
+          </article>
+        </main>
+
+        <footer class="site-footer">
+          <div class="wrap site-footer__inner">
+            <p class="muted">
+              <span class="prompt" aria-hidden="true"></span>© <span id="year"></span> — plain HTML/CSS/JS
+            </p>
+          </div>
+        </footer>
+      </div>
+    </div>
+
+    <script src="/script.js"></script>
+  </body>
+</html>

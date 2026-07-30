@@ -173,6 +173,11 @@
     rows.push(
       topFolder("classes", [
         linkRow(
+          "/classes/eecs482.html",
+          "eecs482.html",
+          parts[0] === "classes" && leaf === "eecs482.html"
+        ),
+        linkRow(
           "/classes/eecs498.html",
           "eecs498.html",
           parts[0] === "classes" && leaf === "eecs498.html"
@@ -383,6 +388,10 @@
       games: "/personal/games/word-hunt.html",
       wordhunt: "/personal/games/word-hunt.html",
       "word hunt": "/personal/games/word-hunt.html",
+      eecs482: "/classes/eecs482.html",
+      "482": "/classes/eecs482.html",
+      "operating systems": "/classes/eecs482.html",
+      operatingsystems: "/classes/eecs482.html",
       eecs281: "/classes/eecs281.html",
       eecs498: "/classes/eecs498.html",
       "498": "/classes/eecs498.html",
@@ -408,6 +417,8 @@
       "personal/artwork": "/personal/artwork.html",
       "personal/dance": "/personal/dance.html",
       "personal/games": "/personal/games/index.html",
+      "education/eecs482": "/classes/eecs482.html",
+      "classes/eecs482": "/classes/eecs482.html",
       "education/eecs281": "/classes/eecs281.html",
       "classes/eecs281": "/classes/eecs281.html",
       "education/eecs498": "/classes/eecs498.html",
@@ -429,10 +440,12 @@
       "/personal/games.html": "/personal/games/word-hunt.html",
       "/personal/games/index.html": "/personal/games/index.html",
       "/personal/games/word-hunt.html": "/personal/games/word-hunt.html",
+      "/education/eecs482.html": "/classes/eecs482.html",
       "/education/eecs281.html": "/classes/eecs281.html",
-      "/education/overview.html": "/classes.html",
-      "/classes/eecs281.html": "/classes/eecs281.html",
       "/education/eecs498.html": "/classes/eecs498.html",
+      "/education/overview.html": "/classes.html",
+      "/classes/eecs482.html": "/classes/eecs482.html",
+      "/classes/eecs281.html": "/classes/eecs281.html",
       "/classes/eecs498.html": "/classes/eecs498.html",
       "/classes/overview.html": "/classes.html",
       "/research/overview.html": "/research.html",
@@ -473,7 +486,10 @@
         { type: "dir", name: "classes" },
         { type: "dir", name: "personal" },
       ],
-      classes: [{ type: "file", name: "eecs498.html" }],
+      classes: [
+        { type: "file", name: "eecs482.html" },
+        { type: "file", name: "eecs498.html" },
+      ],
       research: [
         { type: "file", name: "overview.html" },
         { type: "file", name: "sam-lab.html" },
